@@ -9,15 +9,15 @@ class MyDocument extends Document {
 				<Head>
 					{/* Import fonts Inter, JetBrains mono and Darker Grotesque */}
 					<link
-						href="https://fonts.googleapis.com/css2?family=Inter&display=optional"
+						href="https://fonts.googleapis.com/css2?family=Inter&display=swap"
 						rel="stylesheet"
 					/>
 					<link
-						href="https://fonts.googleapis.com/css2?family=JetBrains+Mono&display=optional"
+						href="https://fonts.googleapis.com/css2?family=JetBrains+Mono&display=swap"
 						rel="stylesheet"
 					/>
 					<link
-						href="https://fonts.googleapis.com/css2?family=Darker+Grotesque&display=optional"
+						href="https://fonts.googleapis.com/css2?family=Darker+Grotesque&display=swap"
 						rel="stylesheet"
 					/>
 					{/* Stitches setup */}
