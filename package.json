@@ -5,7 +5,7 @@
 	"license": "UNLICENSED",
 	"scripts": {
 		"dev": "next dev",
-		"build": "yarn build && NODE_ENV=production node service-worker.js",
+		"build": "next build && NODE_ENV=production node service-worker.js",
 		"default-build": "next build",
 		"start": "next start",
 		"lint": "next lint"
