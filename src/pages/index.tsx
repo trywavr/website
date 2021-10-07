@@ -24,7 +24,7 @@ const H1 = styled('h1', {
 const Home: NextPage = () => {
 	return (
 		<Container>
-			<H1>Dynamic audio experiences for creators and listeners.</H1>
+			<H1>Dynamic audio experiences for artists, creators and listeners.</H1>
 			<Text style={{ maxWidth: 650, lineHeight: 1.6, marginBottom: 20 }}>
 				The pinnacle of a musical experience is the dynamism of a live
 				performance. Why are we still limiting our daily music consumption to
