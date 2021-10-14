@@ -255,6 +255,7 @@ export const globalStyles = globalCss({
 	},
 	body: {
 		backgroundColor: '$mauve1',
+		color: '$mauve11',
 		fontFamily: '$inter',
 		scrollBehavior: 'smooth',
 		WebkitFontSmoothing: 'antialiased',
@@ -266,6 +267,7 @@ export const globalStyles = globalCss({
 	},
 	'h1, h2, h3, h4, h5, h6': {
 		fontFamily: '$grotesque',
+		color: '$mauve12',
 	},
 	'::selection': {
 		color: '$violet11',
