@@ -32,3 +32,17 @@ yarn-error.log*
 
 # vercel
 .vercel
+
+# purescript
+/bower_components/
+/.pulp-cache/
+/output/
+/.psc-package/
+/.psc*
+/.purs*
+/.psa*
+/.spago
+.purs-repl
+
+# purescript handoff
+src/handoff.js

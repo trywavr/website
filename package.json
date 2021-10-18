@@ -5,7 +5,7 @@
 	"license": "UNLICENSED",
 	"scripts": {
 		"dev": "next dev",
-		"build": "next build",
+		"build": "spago build && spago bundle-module --main WAGSI.Plumbing.Handoff --to src/handoff.js && next build",
 		"start": "next start",
 		"lint": "next lint"
 	},
@@ -27,6 +27,9 @@
 		"eslint-config-next": "11.1.2",
 		"eslint-config-prettier": "^8.3.0",
 		"prettier": "2.4.1",
+		"purescript": "^0.14.4",
+		"purs-tidy": "^0.6.2",
+		"spago": "^0.20.3",
 		"typescript": "4.4.3"
 	}
 }
