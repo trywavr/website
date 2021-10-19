@@ -8,14 +8,15 @@ import { initialize, start, stop, send } from 'handoff';
 
 const Container = styled('div', {
   marginTop: '40px',
-  height: "84vh",
+  height: '84vh',
   display: 'flex',
   flexDirection: 'column',
 });
 
 const Demo = () => {
   const router = useRouter();
-  const [demoInitialized, setDemoInitialized] = useState<DemoInitialized | void>();
+  const [demoInitialized, setDemoInitialized] =
+    useState<DemoInitialized | void>();
   const { stepNumber } = router.query;
   const stepQueryParams =
     stepNumber && typeof stepNumber === 'string'
@@ -25,10 +26,10 @@ const Demo = () => {
 
   useEffect(() => {
     setStep(stepQueryParams || 0);
-  }, [stepNumber])
+  }, [stepNumber]);
+
   useEffect(() => {
-    const initialized = initialize();
-    //setDemoInitialized(initialized);
+    initialize().then(res => setDemoInitialized(res));
   });
 
   return (
@@ -45,7 +46,13 @@ const Demo = () => {
         </>
       )}
 
-      <div style={{ display: 'flex', justifyContent: 'flex-end', alignSelf: 'flex-end' }}>
+      <div
+        style={{
+          display: 'flex',
+          justifyContent: 'flex-end',
+          alignSelf: 'flex-end',
+        }}
+      >
         <Button
           size={2}
           onClick={() => {
