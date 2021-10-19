@@ -1,6 +1,6 @@
 var exec = require("child_process").exec;
 // TODO - make this condition better
-exec("yum install glibc-devel", function(err) {
+exec("yum update", function(err) {
   if (err) {
     console.error(err);
     console.log("completed without invoking yum");
