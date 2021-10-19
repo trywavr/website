@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { styled } from '@stitches/react';
 import { useRouter } from 'next/router';
-import { Step0 } from '../components/demo/step-0';
+import { Step0, Step2 } from '../components/demo';
 import { Button } from '../components/button';
 import { AnimatedHeading } from '../components/demo/animated-heading';
 // @ts-ignore
@@ -20,8 +20,7 @@ const Demo = () => {
   const router = useRouter();
   const [demoInitialized, setDemoInitialized] =
     useState<DemoInitialized | void>();
-  const [demoStarted, setDemoStarted] =
-    useState<DemoStarted | void>();
+  const [demoStarted, setDemoStarted] = useState<DemoStarted | void>();
   const { stepNumber } = router.query;
   const stepQueryParams =
     stepNumber && typeof stepNumber === 'string'
@@ -36,12 +35,14 @@ const Demo = () => {
   const startExample = async () => {
     demoStarted && stop(demoStarted)();
     if (demoInitialized) {
-      await start((s: string) => () => console.error(s))(demoInitialized)().then(setDemoStarted);
+      await start((s: string) => () => console.error(s))(
+        demoInitialized
+      )().then(setDemoStarted);
       send(demoInitialized)({
-        tag: "DE'Music_was_never_meant_to_be_static_or_fixed"
+        tag: "DE'Music_was_never_meant_to_be_static_or_fixed",
       })();
     } else {
-      console.error("Initialization not done yet");
+      console.error('Initialization not done yet');
     }
   };
   return (
@@ -55,7 +56,14 @@ const Demo = () => {
         )}
         {step === 1 && (
           <>
-            <AnimatedHeading text="Hello" /> <Button onClick={startExample}>Make sound</Button>
+            <AnimatedHeading text="Music was never meant to be static or fixed." lineTwo="Music must explode with possibilities." />
+            <Button onClick={startExample} size='3' variant="transparentWhite">Make sound</Button>
+          </>
+        )}
+        {step === 2 && (
+          <>
+            <AnimatedHeading text="The possibility to add new sounds..." />
+            <Step2 />
           </>
         )}
       </div>
@@ -63,7 +71,11 @@ const Demo = () => {
       <Button
         size={2}
         onClick={() => {
-          step === 0 && initialize().then((res: DemoInitialized) => setDemoInitialized(res), (err: Error) => console.log(err));
+          step === 0 &&
+            initialize().then(
+              (res: DemoInitialized) => setDemoInitialized(res),
+              (err: Error) => console.log(err)
+            );
           router.push(`/demo?stepNumber=${step + 1}`);
         }}
       >

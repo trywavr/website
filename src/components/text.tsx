@@ -19,6 +19,9 @@ export const Text = styled('p', {
 			},
 			tertiary: {
 				color: "$mauve10"
+			},
+			inherit: {
+				color: "inherit"
 			}
 		},
 		size: {

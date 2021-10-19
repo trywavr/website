@@ -34,9 +34,14 @@ const sentence = {
   }
 };
 
-export const AnimatedHeading = ({ text }: { text: string }) => (
+export const AnimatedHeading = ({ text, lineTwo }: { text: string, lineTwo?: string }) => (
   <StyledHeading variants={sentence} initial="hidden" animate="visible">
     {text.split('').map((char, index) => (
+      <motion.span key={char + "-" + index} variants={letter}>{char}</motion.span>
+    ))}
+    <br />
+    <br />
+    {lineTwo && lineTwo.split('').map((char, index) => (
       <motion.span key={char + "-" + index} variants={letter}>{char}</motion.span>
     ))}
   </StyledHeading>
