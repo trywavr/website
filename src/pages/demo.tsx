@@ -4,7 +4,8 @@ import { useRouter } from 'next/router';
 import { Step0 } from '../components/demo/step-0';
 import { Button } from '../components/button';
 import { AnimatedHeading } from '../components/demo/animated-heading';
-import { initialize, start, stop, send } from '../../wags/handoff';
+// @ts-ignore
+import { initialize, start, stop, send } from '../utils/wags/handoff';
 
 const Container = styled('div', {
   marginTop: '40px',
