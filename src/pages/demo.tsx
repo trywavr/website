@@ -34,8 +34,7 @@ const Demo = () => {
   const startExample = async () => {
     demoStarted && stop(demoStarted)();
     if (demoInitialized) {
-      const demoStarted_ = await start((s: string) => () => console.error(s))(demoInitialized)();
-      setDemoStarted(demoStarted_);
+      await start((s: string) => () => console.error(s))(demoInitialized)().then(setDemoStarted);
       send(demoInitialized)({
         tag: "DE'Music_was_never_meant_to_be_static_or_fixed"
       })();
