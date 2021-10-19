@@ -66,7 +66,7 @@ const Demo = () => {
         <Button
           size={2}
           onClick={() => {
-            step === 0 && initialize().then((res: DemoInitialized) => setDemoInitialized(res));
+            step === 0 && initialize().then((res: DemoInitialized) => setDemoInitialized(res), (err: Error) => console.log(err));
             router.push(`/demo?stepNumber=${step + 1}`);
           }}
         >
