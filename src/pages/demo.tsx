@@ -4,6 +4,7 @@ import { useRouter } from 'next/router';
 import { Step0 } from '../components/demo/step-0';
 import { Button } from '../components/button';
 import { AnimatedHeading } from '../components/demo/animated-heading';
+import { initialize, start, stop, send } from 'handoff';
 
 const Container = styled('div', {
   marginTop: '40px',
@@ -14,6 +15,7 @@ const Container = styled('div', {
 
 const Demo = () => {
   const router = useRouter();
+  const [demoInitialized, setDemoInitialized] = useState<DemoInitialized | void>();
   const { stepNumber } = router.query;
   const stepQueryParams =
     stepNumber && typeof stepNumber === 'string'
@@ -24,6 +26,10 @@ const Demo = () => {
   useEffect(() => {
     setStep(stepQueryParams || 0);
   }, [stepNumber])
+  useEffect(() => {
+    const initialized = initialize();
+    //setDemoInitialized(initialized);
+  });
 
   return (
     <Container>
@@ -35,7 +41,7 @@ const Demo = () => {
       )}
       {step === 1 && (
         <>
-          <AnimatedHeading text="Hello" />
+          <AnimatedHeading text="Hello" /> <Button>Make sound</Button>
         </>
       )}
 
