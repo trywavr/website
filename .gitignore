@@ -45,4 +45,4 @@ yarn-error.log*
 .purs-repl
 
 # purescript handoff
-src/handoff.js
+wags/handoff.js
