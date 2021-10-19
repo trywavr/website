@@ -67,5 +67,5 @@
   , "web-uievents"
   ]
 , packages = ./packages.dhall
-, sources = [ "wags/**/*.purs" ]
+, sources = [ "src/utils/wags/**/*.purs" ]
 }
