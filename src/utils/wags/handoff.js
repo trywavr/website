@@ -12058,10 +12058,10 @@ var PS = {};
           return fetch(s)
             .then(function (b) {
               return b.arrayBuffer();
-            })
+            }, function(e) {console.error(e); Promise.reject(e);})
             .then(function (b) {
               return ctx.decodeAudioData(b);
-            });
+            }, function(e) {console.error(e); Promise.reject(e);});
         }
       };
     };
