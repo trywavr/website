@@ -43,7 +43,6 @@ const Demo = () => {
         <Button
           size={2}
           onClick={() => {
-            setStep(step + 1);
             router.push(`/demo?stepNumber=${step + 1}`);
           }}
         >
