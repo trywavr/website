@@ -5,7 +5,9 @@
 	"license": "UNLICENSED",
 	"scripts": {
 		"dev": "next dev",
-		"build": "spago build && spago bundle-module --main WAGSI.Plumbing.Handoff --to src/handoff.js && next build",
+		"wags": "spago build && spago bundle-module --main WAGSI.Plumbing.Handoff --to src/handoff.js",
+		"preinstall": "node preinstall.js",
+		"build": "next build",
 		"start": "next start",
 		"lint": "next lint"
 	},
