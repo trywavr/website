@@ -4,7 +4,7 @@ import { useRouter } from 'next/router';
 import { Step0 } from '../components/demo/step-0';
 import { Button } from '../components/button';
 import { AnimatedHeading } from '../components/demo/animated-heading';
-import { initialize, start, stop, send } from 'handoff';
+import { initialize, start, stop, send } from '../../wags/handoff';
 
 const Container = styled('div', {
   marginTop: '40px',
@@ -17,6 +17,8 @@ const Demo = () => {
   const router = useRouter();
   const [demoInitialized, setDemoInitialized] =
     useState<DemoInitialized | void>();
+  const [demoStarted, setDemoStarted] =
+    useState<DemoStarted | void>();
   const { stepNumber } = router.query;
   const stepQueryParams =
     stepNumber && typeof stepNumber === 'string'
@@ -29,9 +31,21 @@ const Demo = () => {
   }, [stepNumber]);
 
   useEffect(() => {
-    initialize().then(res => setDemoInitialized(res));
+    initialize().then((res: DemoInitialized) => setDemoInitialized(res));
   });
 
+  const startExample = async () => {
+    demoStarted && stop(demoStarted)();
+    if (demoInitialized) {
+      const demoStarted_ = await start((s: string) => () => console.error(s))(demoInitialized)();
+      setDemoStarted(demoStarted_);
+      send(demoInitialized)({
+        tag: "DE'Music_was_never_meant_to_be_static_or_fixed"
+      })();
+    } else {
+      console.error("Initialization not done yet");
+    }
+  };
   return (
     <Container>
       {step === 0 && (
@@ -42,7 +56,7 @@ const Demo = () => {
       )}
       {step === 1 && (
         <>
-          <AnimatedHeading text="Hello" /> <Button>Make sound</Button>
+          <AnimatedHeading text="Hello" /> <Button onClick={startExample}>Make sound</Button>
         </>
       )}
 
