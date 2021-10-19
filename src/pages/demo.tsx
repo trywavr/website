@@ -31,10 +31,6 @@ const Demo = () => {
     setStep(stepQueryParams || 0);
   }, [stepNumber]);
 
-  useEffect(() => {
-    initialize().then((res: DemoInitialized) => setDemoInitialized(res));
-  });
-
   const startExample = async () => {
     demoStarted && stop(demoStarted)();
     if (demoInitialized) {
@@ -71,6 +67,9 @@ const Demo = () => {
         <Button
           size={2}
           onClick={() => {
+            if (step === 0) {
+              initialize().then((res: DemoInitialized) => setDemoInitialized(res));
+            }
             setStep(step + 1);
             router.push(`/demo?stepNumber=${step + 1}`);
           }}
