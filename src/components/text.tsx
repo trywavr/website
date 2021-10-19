@@ -10,6 +10,17 @@ export const Text = styled('p', {
 	display: 'block',
 
 	variants: {
+		color: {
+			primary: {
+				color: "$mauve12"
+			},
+			secondary: {
+				color: "$mauve11"
+			},
+			tertiary: {
+				color: "$mauve10"
+			}
+		},
 		size: {
 			xs: {
 				fontSize: '$xs',
@@ -78,6 +89,7 @@ export const Text = styled('p', {
 		}
 	},
 	defaultVariants: {
+		color: 'secondary',
 		size: 'md',
 		fontWeight: 400
 	},

@@ -59,6 +59,17 @@ export const Button = styled('button', {
         lineHeight: '$sizes$7',
       },
     },
+    width: {
+      inherit: {
+        width: 'inherit'
+      },
+      full: {
+        width: '100%'
+      },
+      fit: {
+        width: 'fit-content'
+      }
+    },
     variant: {
       gray: {
         backgroundColor: '$loContrast',
@@ -315,6 +326,7 @@ export const Button = styled('button', {
     // },
   ],
   defaultVariants: {
+    width: "inherit",
     size: '1',
     variant: 'gray',
   },

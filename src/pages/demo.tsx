@@ -8,10 +8,12 @@ import { AnimatedHeading } from '../components/demo/animated-heading';
 import { initialize, start, stop, send } from '../utils/wags/handoff';
 
 const Container = styled('div', {
-  marginTop: '40px',
   height: '84vh',
   display: 'flex',
   flexDirection: 'column',
+  justifyContent: 'space-between',
+  maxWidth: '600px',
+  margin: '40px auto 0 auto',
 });
 
 const Demo = () => {
@@ -44,35 +46,29 @@ const Demo = () => {
   };
   return (
     <Container>
-      {step === 0 && (
-        <>
-          <AnimatedHeading text="Peek into what's possible" />
-          <Step0 />
-        </>
-      )}
-      {step === 1 && (
-        <>
-          <AnimatedHeading text="Hello" /> <Button onClick={startExample}>Make sound</Button>
-        </>
-      )}
+      <div>
+        {step === 0 && (
+          <>
+            <AnimatedHeading text="Peek into what's possible" />
+            <Step0 />
+          </>
+        )}
+        {step === 1 && (
+          <>
+            <AnimatedHeading text="Hello" /> <Button onClick={startExample}>Make sound</Button>
+          </>
+        )}
+      </div>
 
-      <div
-        style={{
-          display: 'flex',
-          justifyContent: 'flex-end',
-          alignSelf: 'flex-end',
+      <Button
+        size={2}
+        onClick={() => {
+          step === 0 && initialize().then((res: DemoInitialized) => setDemoInitialized(res), (err: Error) => console.log(err));
+          router.push(`/demo?stepNumber=${step + 1}`);
         }}
       >
-        <Button
-          size={2}
-          onClick={() => {
-            step === 0 && initialize().then((res: DemoInitialized) => setDemoInitialized(res), (err: Error) => console.log(err));
-            router.push(`/demo?stepNumber=${step + 1}`);
-          }}
-        >
-          Next
-        </Button>
-      </div>
+        Next
+      </Button>
     </Container>
   );
 };

@@ -5,7 +5,7 @@ import { styled } from '@stitches/react';
 const StyledHeading = styled(motion.h2, {
   fontFamily: '$grotesque',
   lineHeight: '1',
-  margin: '0',
+  margin: '0 0 64px 0',
   fontWeight: 600,
   fontVariantNumeric: 'tabular-nums',
   display: 'block',
