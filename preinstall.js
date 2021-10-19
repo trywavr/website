@@ -1,6 +1,6 @@
 var exec = require("child_process").exec;
 // TODO - make this condition better
-exec("yum update", function(err) {
+exec("yum update && yum -q list glibc", function(err) {
   if (err) {
     console.error(err);
     console.log("completed without invoking yum");
