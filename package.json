@@ -4,7 +4,6 @@
 	"private": false,
 	"license": "UNLICENSED",
 	"scripts": {
-		"preinstall": "node preinstall.js",
 		"dev": "next dev",
 		"build": "spago build && spago bundle-module --main WAGSI.Plumbing.Handoff --to src/handoff.js && next build",
 		"start": "next start",
