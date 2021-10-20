@@ -2,7 +2,7 @@ import React from 'react';
 import type { NextPage } from 'next';
 import { styled } from '@stitches/react';
 import { Text } from '../components/text';
-import { TwitterLogoIcon, GitHubLogoIcon } from '@radix-ui/react-icons';
+import { TwitterLogoIcon, GitHubLogoIcon, MixIcon } from '@radix-ui/react-icons';
 import { IconButton } from '../components/icon-button';
 
 const Container = styled('div', {
@@ -49,6 +49,9 @@ const Home: NextPage = () => {
 					href="https://github.com/trywavr"
 				>
 					<GitHubLogoIcon />
+				</IconButton>
+				<IconButton size="3" as="a" href="/demo" >
+					<MixIcon />
 				</IconButton>
 			</div>
 		</Container>

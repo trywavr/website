@@ -74,19 +74,23 @@ const Demo = () => {
         )}
       </div>
 
-      <Button
-        size={2}
-        onClick={() => {
-          step === 0 &&
-            initialize().then(
-              (res: DemoInitialized) => setDemoInitialized(res),
-              (err: Error) => console.log(err)
-            );
-          router.push(`/demo?stepNumber=${step + 1}`);
-        }}
-      >
-        Next
-      </Button>
+      <div style={{ display: 'flex' }}>
+        <Button onClick={() => step > 0 && setStep(step - 1)} size={2}>Back</Button>
+        <div style={{ width: 16 }} />
+        <Button
+          size={2}
+          onClick={() => {
+            step === 0 &&
+              initialize().then(
+                (res: DemoInitialized) => setDemoInitialized(res),
+                (err: Error) => console.log(err)
+              );
+            router.push(`/demo?stepNumber=${step + 1}`);
+          }}
+        >
+          Next
+        </Button>
+      </div>
     </Container>
   );
 };
