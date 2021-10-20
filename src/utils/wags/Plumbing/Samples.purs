@@ -2080,13 +2080,14 @@ import Safe.Coerce (coerce)
 import Unsafe.Coerce (unsafeCoerce)
 import WAGS.WebAPI (BrowserAudioBuffer)
 import WAGSI.Plumbing.FX (calm)
-import WAGSI.Plumbing.Types (BufferUrl(..), ClockTimeIs, DroneNote(..), Note(..), Sample(..), Samples(..), TimeIs, TimeIsAndWas, UnsampledTimeIs)
+import WAGSI.Plumbing.Types (BufferUrl(..), ClockTimeIs, DroneNote(..), Note(..), Sample(..), Samples, TimeIs, TimeIsAndWas, UnsampledTimeIs)
 
 unsafeSamples :: Samples ~> Object
 unsafeSamples = unsafeCoerce
 
+-- boo for unsafe coerce, but should be ok
 urls :: Samples String
-urls = Samples
+urls = unsafeCoerce
   { "intentionalSilenceForInternalUseOnly": "https://freesound.org/data/previews/459/459659_4766646-lq.mp3"
   , "kicklinn:0": "https://media.graphcms.com/SkJF65iaQfC6XWb4AFgm"
   , "msg:0": "https://media.graphcms.com/MmGhQDoOT0POhs9W8aDx"
