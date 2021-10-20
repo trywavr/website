@@ -10558,7 +10558,7 @@ var PS = {};
 })(PS);
 (function(exports) {
   exports.context = function () {
-    return new (window.AudioContext || window.webkitAudioContext)();
+    return new (window.webkitAudioContext || window.AudioContext)();
   };
   exports.makeUnitCache = function () {
     return {};
