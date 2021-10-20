@@ -243,9 +243,23 @@ var PS = {};
   "use strict";
   $PS["Control.Applicative"] = $PS["Control.Applicative"] || {};
   var exports = $PS["Control.Applicative"];
-  var Control_Apply = $PS["Control.Apply"];          
+  var Control_Apply = $PS["Control.Apply"];
+  var Data_Unit = $PS["Data.Unit"];                  
   var pure = function (dict) {
       return dict.pure;
+  };
+  var when = function (dictApplicative) {
+      return function (v) {
+          return function (v1) {
+              if (v) {
+                  return v1;
+              };
+              if (!v) {
+                  return pure(dictApplicative)(Data_Unit.unit);
+              };
+              throw new Error("Failed pattern match at Control.Applicative (line 61, column 1 - line 61, column 63): " + [ v.constructor.name, v1.constructor.name ]);
+          };
+      };
   };
   var liftA1 = function (dictApplicative) {
       return function (f) {
@@ -274,6 +288,7 @@ var PS = {};
   };
   exports["pure"] = pure;
   exports["liftA1"] = liftA1;
+  exports["when"] = when;
   exports["applicativeFn"] = applicativeFn;
   exports["applicativeArray"] = applicativeArray;
 })(PS);
@@ -10558,8 +10573,18 @@ var PS = {};
 })(PS);
 (function(exports) {
   exports.context = function () {
-    return new (window.webkitAudioContext || window.AudioContext)();
+    return new (window.AudioContext || window.webkitAudioContext)();
   };
+  exports.contextState = function(audioCtx) {
+    return function() {
+      return audioCtx.state;
+    }
+  }
+  exports.contextResume = function(audioCtx) {
+    return function() {
+      return audioCtx.resume();
+    }
+  }
   exports.makeUnitCache = function () {
     return {};
   };
@@ -16657,7 +16682,7 @@ var PS = {};
           if (v instanceof WAGS_Rendered.FourX) {
               return "4x";
           };
-          throw new Error("Failed pattern match at WAGS.Interpret (line 990, column 15 - line 993, column 18): " + [ v.constructor.name ]);
+          throw new Error("Failed pattern match at WAGS.Interpret (line 998, column 15 - line 1001, column 18): " + [ v.constructor.name ]);
       }
   };
   var safeToFFI_Number = {
@@ -16696,7 +16721,7 @@ var PS = {};
                   if (v1 instanceof WAGS_Graph_AudioUnit.OffOn) {
                       return "offOn";
                   };
-                  throw new Error("Failed pattern match at WAGS.Interpret (line 1044, column 13 - line 1047, column 31): " + [ v1.constructor.name ]);
+                  throw new Error("Failed pattern match at WAGS.Interpret (line 1052, column 13 - line 1055, column 31): " + [ v1.constructor.name ]);
               })(v.param),
               timeOffset: v.timeOffset,
               transition: Data_Show.show(WAGS_Graph_Parameter.showAudioParameterTransition)(v.transition),
@@ -17367,7 +17392,7 @@ var PS = {};
               if (v.value1 instanceof Data_Either.Right) {
                   return makePeriodicOscV(dictAudioInterpret)(v.value0)(v.value1.value0)(v.value2)(v.value3);
               };
-              throw new Error("Failed pattern match at WAGS.Interpret (line 820, column 32 - line 822, column 44): " + [ v.value1.constructor.name ]);
+              throw new Error("Failed pattern match at WAGS.Interpret (line 828, column 32 - line 830, column 44): " + [ v.value1.constructor.name ]);
           };
           if (v instanceof WAGS_Rendered.MakePlayBuf) {
               return makePlayBuf(dictAudioInterpret)(v.value0)(v.value1)(v.value2)(v.value3)(v.value4);
@@ -17436,7 +17461,7 @@ var PS = {};
               if (v.value1 instanceof Data_Either.Right) {
                   return setPeriodicOscV(dictAudioInterpret)(v.value0)(v.value1.value0);
               };
-              throw new Error("Failed pattern match at WAGS.Interpret (line 848, column 27 - line 850, column 40): " + [ v.value1.constructor.name ]);
+              throw new Error("Failed pattern match at WAGS.Interpret (line 856, column 27 - line 858, column 40): " + [ v.value1.constructor.name ]);
           };
           if (v instanceof WAGS_Rendered.SetOnOff) {
               return setOnOff(dictAudioInterpret)(v.value0)(v.value1);
@@ -17498,7 +17523,7 @@ var PS = {};
           if (v instanceof WAGS_Rendered.SetTumult) {
               return setGain(dictAudioInterpret)(v.value0)(Control_Applicative.pure(WAGS_Graph_Parameter.applicativeAudioParameter)(1.0));
           };
-          throw new Error("Failed pattern match at WAGS.Interpret (line 796, column 24 - line 874, column 46): " + [ v.constructor.name ]);
+          throw new Error("Failed pattern match at WAGS.Interpret (line 804, column 24 - line 882, column 46): " + [ v.constructor.name ]);
       };
   };
   var makeInstructionsEffectful = function (a) {
@@ -17522,7 +17547,7 @@ var PS = {};
                   };
               })())(Data_Array.fromFoldable(Data_Set.foldableSet)(WAGS_Tumult_Reconciliation.reconcileTumult(a)(v.value0)));
           };
-          throw new Error("Failed pattern match at WAGS.Interpret (line 877, column 31 - line 879, column 100): " + [ v.constructor.name ]);
+          throw new Error("Failed pattern match at WAGS.Interpret (line 885, column 31 - line 887, column 100): " + [ v.constructor.name ]);
       };
   };
   var effectfulAudioInterpret = {
@@ -18686,6 +18711,8 @@ var PS = {};
   exports["mixedAudioInterpret"] = mixedAudioInterpret;
   exports["close"] = $foreign.close;
   exports["context"] = $foreign.context;
+  exports["contextState"] = $foreign.contextState;
+  exports["contextResume"] = $foreign.contextResume;
   exports["decodeAudioDataFromUri"] = $foreign.decodeAudioDataFromUri;
   exports["getAudioClockTime"] = $foreign.getAudioClockTime;
   exports["makeUnitCache"] = $foreign.makeUnitCache;
@@ -21129,6 +21156,7 @@ var PS = {};
   }
 })(PS["WAGSI.Plumbing.Download"] = PS["WAGSI.Plumbing.Download"] || {});
 (function($PS) {
+  // Generated by purs version 0.14.4
   "use strict";
   $PS["WAGSI.Plumbing.Types"] = $PS["WAGSI.Plumbing.Types"] || {};
   var exports = $PS["WAGSI.Plumbing.Types"];
@@ -21140,8 +21168,6 @@ var PS = {};
   var NoteInTime = function (x) {
       return x;
   };
-
-  //-
   var IBranching = (function () {
       function IBranching(value0) {
           this.value0 = value0;
@@ -21151,8 +21177,6 @@ var PS = {};
       };
       return IBranching;
   })();
-
-  //-
   var ISimultaneous = (function () {
       function ISimultaneous(value0) {
           this.value0 = value0;
@@ -21162,8 +21186,6 @@ var PS = {};
       };
       return ISimultaneous;
   })();
-
-  //-
   var ISequential = (function () {
       function ISequential(value0) {
           this.value0 = value0;
@@ -21173,8 +21195,6 @@ var PS = {};
       };
       return ISequential;
   })();
-
-  //-
   var IInternal = (function () {
       function IInternal(value0) {
           this.value0 = value0;
@@ -21184,8 +21204,6 @@ var PS = {};
       };
       return IInternal;
   })();
-
-  //-
   var ISingleNote = (function () {
       function ISingleNote(value0) {
           this.value0 = value0;
@@ -21195,8 +21213,6 @@ var PS = {};
       };
       return ISingleNote;
   })();
-
-  //--
   var Note = function (x) {
       return x;
   };
@@ -27758,7 +27774,6 @@ var PS = {};
   exports["consoleDemoEvent"] = consoleDemoEvent;
 })(PS);
 (function($PS) {
-  // Generated by purs version 0.14.4
   "use strict";
   $PS["WAGSI.Plumbing.Handoff"] = $PS["WAGSI.Plumbing.Handoff"] || {};
   var exports = $PS["WAGSI.Plumbing.Handoff"];
@@ -27792,19 +27807,23 @@ var PS = {};
           return Control_Promise.fromAff((function () {
               var ohBehave = WAGSI_Plumbing_Util.r2b(v.bufCache);
               return Control_Bind.bind(Effect_Aff.bindAff)(Effect_Class.liftEffect(Effect_Aff.monadEffectAff)(WAGS_Interpret.context))(function (audioCtx) {
-                  return Control_Bind.bind(Effect_Aff.bindAff)(Effect_Class.liftEffect(Effect_Aff.monadEffectAff)(WAGS_Interpret.makeUnitCache))(function (unitCache) {
-                      var ffiAudio = WAGS_Interpret.defaultFFIAudio(audioCtx)(unitCache);
-                      var v1 = WAGSI_Plumbing_Engine.engine(Data_List_Types.monoidList)(WAGSI_Plumbing_Util.de2list(WAGSI_Plumbing_Util.consoleDemoEvent(logger)(v.interactivity.event)))(Control_Applicative.pure(FRP_Event.applicativeEvent)(WAGSI_Plumbing_Example.wag))(ohBehave);
-                      return Control_Bind.bind(Effect_Aff.bindAff)(Data_Tuple.snd(v1.triggerWorld(new Data_Tuple.Tuple(audioCtx, Control_Applicative.pure(Effect_Aff.applicativeAff)(new Data_Tuple.Tuple(Control_Applicative.pure(FRP_Event.applicativeEvent)({}), Control_Applicative.pure(FRP_Behavior.applicativeABehavior(FRP_Event.functorEvent))({})))))))(function (v2) {
-                          return Control_Bind.discard(Control_Bind.discardUnit)(Effect_Aff.bindAff)(WAGSI_Plumbing_Util.doDownloads(audioCtx)(v.bufCache)(Data_Function["const"](Control_Applicative.pure(Effect.applicativeEffect)(Data_Unit.unit)))(WAGSI_Plumbing_Tidal.openFuture))(function () {
-                              return Control_Bind.bind(Effect_Aff.bindAff)(Effect_Class.liftEffect(Effect_Aff.monadEffectAff)(FRP_Event.subscribe(WAGS_Run.run()(WAGS_Run.analyserRefsNil)(WAGS_Run.workWithAnalysersNil)(WAGS_Run.getAnalysersNil)(Data_Monoid.monoidUnit)(v2.value0)(v2.value1)({
-                                  easingAlgorithm: WAGSI_Plumbing_Util.easingAlgorithm
-                              })(ffiAudio)(v1.piece))(function (v3) {
-                                  return Control_Applicative.pure(Effect.applicativeEffect)(Data_Unit.unit);
-                              })))(function (unsubscribe) {
-                                  return Control_Applicative.pure(Effect_Aff.applicativeAff)({
-                                      audioCtx: audioCtx,
-                                      unsubscribe: unsubscribe
+                  return Control_Bind.bind(Effect_Aff.bindAff)(Effect_Class.liftEffect(Effect_Aff.monadEffectAff)(WAGS_Interpret.contextState(audioCtx)))(function (cstate) {
+                      return Control_Bind.discard(Control_Bind.discardUnit)(Effect_Aff.bindAff)(Control_Applicative.when(Effect_Aff.applicativeAff)(cstate !== "running")(Control_Promise.toAffE(WAGS_Interpret.contextResume(audioCtx))))(function () {
+                          return Control_Bind.bind(Effect_Aff.bindAff)(Effect_Class.liftEffect(Effect_Aff.monadEffectAff)(WAGS_Interpret.makeUnitCache))(function (unitCache) {
+                              var ffiAudio = WAGS_Interpret.defaultFFIAudio(audioCtx)(unitCache);
+                              var v1 = WAGSI_Plumbing_Engine.engine(Data_List_Types.monoidList)(WAGSI_Plumbing_Util.de2list(WAGSI_Plumbing_Util.consoleDemoEvent(logger)(v.interactivity.event)))(Control_Applicative.pure(FRP_Event.applicativeEvent)(WAGSI_Plumbing_Example.wag))(ohBehave);
+                              return Control_Bind.bind(Effect_Aff.bindAff)(Data_Tuple.snd(v1.triggerWorld(new Data_Tuple.Tuple(audioCtx, Control_Applicative.pure(Effect_Aff.applicativeAff)(new Data_Tuple.Tuple(Control_Applicative.pure(FRP_Event.applicativeEvent)({}), Control_Applicative.pure(FRP_Behavior.applicativeABehavior(FRP_Event.functorEvent))({})))))))(function (v2) {
+                                  return Control_Bind.discard(Control_Bind.discardUnit)(Effect_Aff.bindAff)(WAGSI_Plumbing_Util.doDownloads(audioCtx)(v.bufCache)(Data_Function["const"](Control_Applicative.pure(Effect.applicativeEffect)(Data_Unit.unit)))(WAGSI_Plumbing_Tidal.openFuture))(function () {
+                                      return Control_Bind.bind(Effect_Aff.bindAff)(Effect_Class.liftEffect(Effect_Aff.monadEffectAff)(FRP_Event.subscribe(WAGS_Run.run()(WAGS_Run.analyserRefsNil)(WAGS_Run.workWithAnalysersNil)(WAGS_Run.getAnalysersNil)(Data_Monoid.monoidUnit)(v2.value0)(v2.value1)({
+                                          easingAlgorithm: WAGSI_Plumbing_Util.easingAlgorithm
+                                      })(ffiAudio)(v1.piece))(function (v3) {
+                                          return Control_Applicative.pure(Effect.applicativeEffect)(Data_Unit.unit);
+                                      })))(function (unsubscribe) {
+                                          return Control_Applicative.pure(Effect_Aff.applicativeAff)({
+                                              audioCtx: audioCtx,
+                                              unsubscribe: unsubscribe
+                                          });
+                                      });
                                   });
                               });
                           });
@@ -27824,9 +27843,11 @@ var PS = {};
                   isFresh: true,
                   value: Data_List_Types.Nil.value
               })))(function () {
-                  return Control_Applicative.pure(Effect_Aff.applicativeAff)({
-                      bufCache: bufCache,
-                      interactivity: interactivity
+                  return Control_Bind.discard(Control_Bind.discardUnit)(Effect_Aff.bindAff)(Effect_Class.liftEffect(Effect_Aff.monadEffectAff)(WAGS_Interpret.close(ctx)))(function () {
+                      return Control_Applicative.pure(Effect_Aff.applicativeAff)({
+                          bufCache: bufCache,
+                          interactivity: interactivity
+                      });
                   });
               });
           });

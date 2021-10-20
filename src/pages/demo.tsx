@@ -103,7 +103,7 @@ const Demo = () => {
         {step === 1 && (
           <>
             <AnimatedHeading text="Music was never meant to be static or fixed." lineTwo="Music must explode with possibilities." />
-            <Button onClick={startExample2} size='3' variant="transparentWhite">Make sound</Button>
+            <Button onClick={startExample} size='3' variant="transparentWhite">Make sound</Button>
           </>
         )}
         {step === 2 && (
