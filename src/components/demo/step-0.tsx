@@ -1,7 +1,7 @@
 import React from 'react';
 import { styled } from '@stitches/react';
 import { Text } from '../text'
-import { SpeakerLoudIcon } from '@radix-ui/react-icons';
+import { PlayIcon } from '@radix-ui/react-icons';
 
 const Box = styled("div", {
   borderRadius: '$2',
@@ -23,7 +23,7 @@ export const Step0 = () => {
             <Text size="md" fontWeight={400}>Prince</Text>
           </div>
         </div>
-        <SpeakerLoudIcon />
+        <PlayIcon />
       </Box>
     </>
   )
