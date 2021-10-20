@@ -32,52 +32,6 @@ const Demo = () => {
     setStep(stepQueryParams || 0);
   }, [stepNumber]);
 
-  ////////////////////// hack
-  let audioCtx: any;
-  let source: any;
-  let songLength;
-  function getData() {
-    audioCtx = new window.AudioContext();
-    
-    source = audioCtx.createBufferSource();
-    var request = new XMLHttpRequest();
-
-    request.open(
-      "GET",
-      "https://media.graphcms.com/LKCWs2oYQy2vG8ePMuaL",
-      true
-    );
-
-    request.responseType = "arraybuffer";
-
-    request.onload = function () {
-      let audioData = request.response;
-
-      audioCtx.decodeAudioData(
-        audioData,
-        function (buffer:any) {
-          var myBuffer = buffer;
-          songLength = buffer.duration;
-          source.buffer = myBuffer;
-          source.playbackRate.value = 1.0;
-          source.connect(audioCtx.destination);
-          source.loop = true;
-        },
-
-        function (e: any) {
-          "Error with decoding audio data" + e.error;
-        }
-      );
-    };
-
-    request.send();
-  }
-
-  const startExample2 = function () {
-    getData();
-    source.start(0);
-  };
-
   const startExample = async () => {
     demoStarted && stop(demoStarted)();
     if (demoInitialized) {
