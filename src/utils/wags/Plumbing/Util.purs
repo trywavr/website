@@ -58,7 +58,6 @@ easingAlgorithm =
   in
     fOf 15
 
-
 v2s :: forall event. Voice event -> Set.Set Sample
 v2s (Voice { next: NextCycle { samples } }) = samples
 
@@ -80,7 +79,6 @@ doDownloads audioContext cacheRef push future@(TheFuture { earth, wind, fire, ai
   liftEffect do
     Ref.write newMap cacheRef
     push future
-
 
 consoleDemoEvent :: (String -> Effect Unit) -> Event.Event Foreign -> Event.Event DemoEvent
 consoleDemoEvent loggr x = makeEvent \f -> subscribe x \a -> do
