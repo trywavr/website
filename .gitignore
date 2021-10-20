@@ -44,8 +44,5 @@ yarn-error.log*
 /.spago
 .purs-repl
 
-# purescript handoff
-wags/handoff.js
-
 # internal
 src/pages/hack.tsx
