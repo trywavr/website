@@ -56,8 +56,13 @@ const Demo = () => {
         )}
         {step === 1 && (
           <>
-            <AnimatedHeading text="Music was never meant to be static or fixed." lineTwo="Music must explode with possibilities." />
-            <Button onClick={startExample} size='3' variant="transparentWhite">Make sound</Button>
+            <AnimatedHeading
+              text="Music was never meant to be static or fixed."
+              lineTwo="Music must explode with possibilities."
+            />
+            <Button onClick={startExample} size="3" variant="transparentWhite">
+              Make sound
+            </Button>
           </>
         )}
         {step === 2 && (
@@ -74,9 +79,15 @@ const Demo = () => {
         )}
       </div>
 
-      <div style={{ display: 'flex' }}>
-        <Button onClick={() => step > 0 && setStep(step - 1)} size={2}>Back</Button>
-        <div style={{ width: 16 }} />
+      <div style={{ display: 'flex', justifyContent: 'flex-end' }}>
+        {step > 0 && (
+          <>
+            <Button onClick={() => setStep(step - 1)} size={2}>
+              Back
+            </Button>
+            <div style={{ width: 16 }} />
+          </>
+        )}
         <Button
           size={2}
           onClick={() => {

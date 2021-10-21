@@ -47,6 +47,7 @@ const Home: NextPage = () => {
 					target="_blank"
 					rel="noopener"
 					href="https://github.com/trywavr"
+					style={{ marginRight: 8 }}
 				>
 					<GitHubLogoIcon />
 				</IconButton>
