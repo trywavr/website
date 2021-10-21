@@ -3,9 +3,10 @@ module WAGSI.Plumbing.Handoff where
 import Prelude
 
 import Control.Promise (Promise, fromAff, toAffE)
-import Data.List (List(..))
+import Data.List (List(..), fold)
 import Data.Map (Map)
 import Data.Map as Map
+import Data.Traversable (traverse)
 import Data.Tuple (snd)
 import Data.Tuple.Nested ((/\))
 import Effect (Effect)
@@ -19,6 +20,7 @@ import WAGS.Run (run, Run)
 import WAGS.WebAPI (AudioContext)
 import WAGSI.Plumbing.Engine (engine)
 import WAGSI.Plumbing.Example as Example
+import WAGSI.Plumbing.MusicWasNeverMeantToBeStaticOrFixed (musicWasNeverMeantToBeStaticOrFixed)
 import WAGSI.Plumbing.Tidal (openFuture)
 import WAGSI.Plumbing.Types (BufferUrl, Sample, ForwardBackwards)
 import WAGSI.Plumbing.Util (de2list, r2b, easingAlgorithm, consoleDemoEvent, doDownloads)
@@ -35,7 +37,7 @@ initialize = fromAff do
   ctx <- liftEffect context
   bufCache <- liftEffect $ Ref.new Map.empty
   interactivity <- liftEffect create
-  doDownloads ctx bufCache (const $ pure unit) (Example.wag { isFresh: true, value: Nil })
+  map fold $ traverse (doDownloads ctx bufCache (const $ pure unit)) [ musicWasNeverMeantToBeStaticOrFixed { isFresh: true, value: Nil }]
   liftEffect $ close ctx
   pure { bufCache, interactivity }
 
