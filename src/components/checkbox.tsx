@@ -69,6 +69,7 @@ type CheckboxPrimitiveProps = React.ComponentProps<typeof CheckboxPrimitive.Root
 type CheckboxVariants = VariantProps<typeof StyledCheckbox>;
 type CheckboxProps = CheckboxPrimitiveProps & CheckboxVariants & { css?: CSS };
 
+
 export const Checkbox = React.forwardRef<React.ElementRef<typeof StyledCheckbox>, CheckboxProps>(
   (props, forwardedRef) => (
     <StyledCheckbox {...props} ref={forwardedRef}>
@@ -78,3 +79,5 @@ export const Checkbox = React.forwardRef<React.ElementRef<typeof StyledCheckbox>
     </StyledCheckbox>
   )
 );
+
+Checkbox.displayName = 'Checkbox';

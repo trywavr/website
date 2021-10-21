@@ -108,3 +108,5 @@ export const Slider = React.forwardRef<React.ElementRef<typeof StyledSlider>, Sl
     );
   }
 );
+
+Slider.displayName = 'Slider';

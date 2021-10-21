@@ -77,6 +77,12 @@ const Demo = () => {
             <Step3 />
           </>
         )}
+        {step === 4 && (
+          <>
+            <AnimatedHeading text="The possibility to change a beat" />
+            {/* <Step4 /> */}
+          </>
+        )}
       </div>
 
       <div style={{ display: 'flex', justifyContent: 'flex-end' }}>
