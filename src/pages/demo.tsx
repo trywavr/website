@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { styled } from '@stitches/react';
 import { useRouter } from 'next/router';
-import { Step0, Step2, Step3 } from '../components/demo';
+import { Step0, Step2, Step3, Step7 } from '../components/demo';
 import { Button } from '../components/button';
 import { AnimatedHeading } from '../components/demo/animated-heading';
 // @ts-ignore
@@ -97,7 +97,7 @@ const Demo = () => {
         {step === 7 && (
           <>
             <AnimatedHeading text="The possibility to shape it with a gesture..." />
-            {/* <Step7 /> */}
+            <Step7 />
           </>
         )}
         {step === 8 && (
