@@ -8,7 +8,7 @@ import { AnimatedHeading } from '../components/demo/animated-heading';
 import { initialize, start, stop, send } from '../utils/wags/handoff';
 
 const Container = styled('div', {
-  height: '84vh',
+  height: '80vh',
   display: 'flex',
   flexDirection: 'column',
   justifyContent: 'space-between',
