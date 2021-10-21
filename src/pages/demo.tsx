@@ -79,8 +79,43 @@ const Demo = () => {
         )}
         {step === 4 && (
           <>
-            <AnimatedHeading text="The possibility to change a beat" />
+            <AnimatedHeading text="The possibility to change a beat..." />
             {/* <Step4 /> */}
+          </>
+        )}
+        {step === 5 && (
+          <>
+            <AnimatedHeading text="The possibility to introduce harmony..." />
+            {/* <Step5 /> */}
+          </>
+        )}
+        {step === 6 && (
+          <>
+            <AnimatedHeading text="The possibility to glitch, crackle and shimmer..." />
+            {/* <Step6 /> */}
+          </>
+        )}
+        {step === 7 && (
+          <>
+            <AnimatedHeading text="The possibility to shape it with a gesture..." />
+            {/* <Step7 /> */}
+          </>
+        )}
+        {step === 8 && (
+          <>
+            <AnimatedHeading text="The possibility to bring listeners to uncharted musical territory..." />
+            {/* <Step8 /> */}
+          </>
+        )}
+        {step === 9 && (
+          <>
+            <AnimatedHeading text="And the possibility to bring them back again." />
+            {/* <Step9 /> */}
+          </>
+        )}
+        {step === 10 && (
+          <>
+            <AnimatedHeading text="Music must explode with possibilities, and that's why we're building wavr." />
           </>
         )}
       </div>
@@ -94,19 +129,21 @@ const Demo = () => {
             <div style={{ width: 16 }} />
           </>
         )}
-        <Button
-          size={2}
-          onClick={() => {
-            step === 0 &&
-              initialize().then(
-                (res: DemoInitialized) => setDemoInitialized(res),
-                (err: Error) => console.log(err)
-              );
-            router.push(`/demo?stepNumber=${step + 1}`);
-          }}
-        >
-          Next
-        </Button>
+        {step < 10 && (
+          <Button
+            size={2}
+            onClick={() => {
+              step === 0 &&
+                initialize().then(
+                  (res: DemoInitialized) => setDemoInitialized(res),
+                  (err: Error) => console.log(err)
+                );
+              router.push(`/demo?stepNumber=${step + 1}`);
+            }}
+          >
+            Next
+          </Button>
+        )}
       </div>
     </Container>
   );
