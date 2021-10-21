@@ -18,7 +18,9 @@ const Container = styled('div', {
 
 const Demo = () => {
   const router = useRouter();
-  const [demoInitialized, setDemoInitialized] =
+  // todo, no longer need hook as currently initialization and starting are
+  // in same step. fix if needed
+  const [_, setDemoInitialized] =
     useState<DemoInitialized | void>();
   const [demoStarted, setDemoStarted] = useState<DemoStarted | void>();
   const { stepNumber } = router.query;
@@ -32,13 +34,13 @@ const Demo = () => {
     setStep(stepQueryParams || 0);
   }, [stepNumber]);
 
-  const startExample = async () => {
+  const startExample = (di: DemoInitialized | void) => async () => {
     demoStarted && stop(demoStarted)();
-    if (demoInitialized) {
+    if (di) {
       await start((s: string) => () => console.error(s))(
-        demoInitialized
+        di
       )().then(setDemoStarted);
-      send(demoInitialized)({
+      send(di)({
         tag: "DE'Music_was_never_meant_to_be_static_or_fixed",
       })();
     } else {
@@ -60,9 +62,6 @@ const Demo = () => {
               text="Music was never meant to be static or fixed."
               lineTwo="Music must explode with possibilities."
             />
-            <Button onClick={startExample} size="3" variant="transparentWhite">
-              Make sound
-            </Button>
           </>
         )}
         {step === 2 && (
@@ -135,7 +134,10 @@ const Demo = () => {
             onClick={() => {
               step === 0 &&
                 initialize().then(
-                  (res: DemoInitialized) => setDemoInitialized(res),
+                  (res: DemoInitialized) => {
+                    setDemoInitialized(res);
+                    return startExample(res)();
+                  },
                   (err: Error) => console.log(err)
                 );
               router.push(`/demo?stepNumber=${step + 1}`);
