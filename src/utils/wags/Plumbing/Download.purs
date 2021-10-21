@@ -2,7 +2,7 @@ module WAGSI.Plumbing.Download where
 
 import Prelude
 
-import Control.Promise (toAffE)
+import Control.Promise (Promise, toAffE)
 import Data.Array as A
 import Data.Either (Either(..))
 import Data.Int (toNumber)
@@ -28,6 +28,11 @@ import Type.Proxy (Proxy(..))
 import WAGS.Interpret (decodeAudioDataFromUri)
 import WAGS.WebAPI (AudioContext, BrowserAudioBuffer)
 import WAGSI.Plumbing.Types (BufferUrl(..), ForwardBackwards, Sample, SampleCache)
+
+data ArrayBuffer
+
+foreign import decodeAudioBufferFromArrayBuffer :: AudioContext -> ArrayBuffer -> Effect (Promise BrowserAudioBuffer)
+foreign import fetchArrayBufferFromUri :: String -> Effect (Promise ArrayBuffer)
 
 class Sounds (rl :: RowList Type) (r :: Row Type) where
   sounds' :: forall proxy. proxy rl -> { | r } -> Map Sample BufferUrl
@@ -104,3 +109,20 @@ initialBuffers
 initialBuffers bf (ac /\ aff) = ac /\ do
   trigger /\ world <- aff
   pure (trigger /\ (Record.insert (Proxy :: _ "buffers") <$> bf <*> world))
+
+mapped2 :: BufferUrl -> Aff ArrayBuffer
+mapped2 (BufferUrl bf) = backoff $ toAffE $ fetchArrayBufferFromUri bf
+
+
+
+getRawBuffers
+  :: Map Sample BufferUrl
+  -> Aff (Map Sample ArrayBuffer)
+getRawBuffers nameToUrl = newBuffers
+  where
+  toDownloadArr :: Array (Sample /\ BufferUrl)
+  toDownloadArr = Map.toUnfoldable nameToUrl
+
+  traversed :: Array (Sample /\ BufferUrl) -> ParAff (Array (Sample /\ ArrayBuffer))
+  traversed = traverse \(k /\ v) -> parallel $ backoff $ ((/\) k <$> mapped2 v)
+  newBuffers = map (Map.fromFoldable <<< join) $ (traverse (sequential <<< traversed) (chunks 100 toDownloadArr))
