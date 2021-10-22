@@ -28,7 +28,7 @@ instance readJSONDC :: JSON.ReadForeign DE'New_dir_choice where
         ]
     )
 
-data DE'Beat_choice = BC'C1 | BC'C2 | BC'C3 | BC'C4 | BC'C5 | BC'C6 | BC'C7
+data DE'Beat_choice = BC'C1 | BC'C2 | BC'C3 | BC'C4 | BC'C5 | BC'C6 | BC'C7 | BC'C8
 
 derive instance eqDEBC :: Eq DE'Beat_choice
 derive instance ordDEBC :: Ord DE'Beat_choice
@@ -42,6 +42,7 @@ instance readJSONBC :: JSON.ReadForeign DE'Beat_choice where
         , "BC'C5" /\ BC'C5
         , "BC'C6" /\ BC'C6
         , "BC'C7" /\ BC'C7
+        , "BC'C8" /\ BC'C8
         ]
     )
 

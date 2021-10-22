@@ -1,5 +1,7 @@
 import React from 'react';
 import { Checkbox, Radio, RadioGroup, Slider } from '@components/index';
+// @ts-expect-error TODO fix types
+import { send } from '../../utils/wags/handoff';
 
 type Step3State = {
 	checked: boolean;
@@ -13,16 +15,23 @@ export const Step3 = ({
 }: {
 	demoInitialized: DemoInitialized;
 }) => {
-	const [step3State, setStep3State] = React.useState({
-		check: false,
+	const [step3State, setStep3State] = React.useState<Step3State>({
+		checked: false,
 		choice: "NDC'C1",
 		slider: 0.0,
 	});
+	const updateState = (s: Step3State) => {
+		setStep3State(s);
+		send(demoInitialized)({
+			tag: "DE'The_possibility_to_take_a_sound_in_a_new_direction",
+			event: s,
+		})();
+	};
 	return (
 		<>
 			<Slider
 				onValueChange={e => {
-					setStep3State({ ...step3State, slider: e[0] / SLIDER_MAX });
+					updateState({ ...step3State, slider: e[0] / SLIDER_MAX });
 				}}
 				defaultValue={[10]}
 				max={SLIDER_MAX}
@@ -35,11 +44,28 @@ export const Step3 = ({
 					margin: '16px 0',
 				}}
 			>
-				<Checkbox size="2" />
+				<Checkbox
+					onCheckedChange={e =>
+						updateState({
+							...step3State,
+							checked: typeof e === 'boolean' ? e : false,
+						})
+					}
+					size="2"
+				/>
 				<Checkbox size="2" />
 				<Checkbox size="2" />
 			</div>
-			<RadioGroup defaultValue="happy">
+			<RadioGroup
+				onValueChange={v =>
+					updateState({
+						...step3State,
+						choice:
+							v === 'hello' ? "NDC'C1" : v === 'happy' ? "NDC'C2" : "NDC'C3",
+					})
+				}
+				defaultValue="happy"
+			>
 				<Radio value="hello" size="2" />
 				<Radio value="happy" size="2" />
 				<Radio value="halloween" size="2" />

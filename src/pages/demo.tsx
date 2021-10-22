@@ -109,10 +109,10 @@ const Demo = () => {
 						<Step3 demoInitialized={demoInitialized} />
 					</>
 				)}
-				{step === 4 && (
+				{step === 4 && demoInitialized && (
 					<>
 						<AnimatedHeading text="The possibility to change a beat..." />
-						<Step4 />
+						<Step4 demoInitialized={demoInitialized} />
 					</>
 				)}
 				{step === 5 && (
@@ -175,6 +175,20 @@ const Demo = () => {
 								send(demoInitialized)({
 									tag: "DE'The_possibility_to_add_new_sounds",
 									event: { one: true, two: false, three: false, four: false },
+								})();
+								step === 2 &&
+								send(demoInitialized)({
+									tag: "DE'The_possibility_to_take_a_sound_in_a_new_direction",
+									event: {
+										checked: false,
+										choice: "NDC'C1",
+										slider: 0.5,
+									},
+								})();
+								step === 3 &&
+								send(demoInitialized)({
+									tag: "DE'The_possibility_to_change_a_beat",
+									event: "BC'C1",
 								})();
 							router.push(`/demo?stepNumber=${step + 1}`);
 						}}
