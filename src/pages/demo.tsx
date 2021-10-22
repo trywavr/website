@@ -64,7 +64,18 @@ const Demo = () => {
 								marginTop: 16,
 							}}
 						>
-							<Button size="2">Okay</Button>
+							<Button
+								size="2"
+								onClick={() => {
+									initialize().then(
+										(res: DemoInitialized) => setDemoInitialized(res),
+										(err: Error) => console.error(err)
+									);
+									setDialogOpen(false);
+								}}
+							>
+								Okay
+							</Button>
 						</div>
 					</DialogContent>
 				</Dialog>
@@ -72,7 +83,7 @@ const Demo = () => {
 				{step === 0 && (
 					<>
 						<AnimatedHeading text="Peek into what's possible" />
-						<Step0 />
+						<Step0 setStep={setStep} />
 					</>
 				)}
 				{step === 1 && (
@@ -156,15 +167,10 @@ const Demo = () => {
 						<div style={{ width: 16 }} />
 					</>
 				)}
-				{step < 10 && (
+				{step < 10 && step > 0 && (
 					<Button
 						size={2}
 						onClick={() => {
-							step === 0 &&
-								initialize().then(
-									(res: DemoInitialized) => setDemoInitialized(res),
-									(err: Error) => console.log(err)
-								);
 							step === 1 &&
 								send(demoInitialized)({
 									tag: "DE'The_possibility_to_add_new_sounds",

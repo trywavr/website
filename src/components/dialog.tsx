@@ -2,18 +2,19 @@ import React from 'react';
 import { styled, CSS } from '../../stitches.config';
 import * as DialogPrimitive from '@radix-ui/react-dialog';
 import { Cross1Icon } from '@radix-ui/react-icons';
-import { IconButton, panelStyles, overlayStyles } from '@components/index';
+import { IconButton, panelStyles } from '@components/index';
 
 type DialogProps = React.ComponentProps<typeof DialogPrimitive.Root> & {
   children: React.ReactNode;
 };
 
-const StyledOverlay = styled(DialogPrimitive.Overlay, overlayStyles, {
+const StyledOverlay = styled(DialogPrimitive.Overlay, {
   position: 'fixed',
   top: 0,
   right: 0,
   bottom: 0,
   left: 0,
+  backgroundColor: "$blackA10"
 });
 
 export function Dialog({ children, ...props }: DialogProps) {
@@ -25,20 +26,18 @@ export function Dialog({ children, ...props }: DialogProps) {
   );
 }
 
-const StyledContent = styled(DialogPrimitive.Content, panelStyles, {
+const StyledContent = styled(DialogPrimitive.Content, {
   position: 'fixed',
   top: '50%',
   left: '50%',
   transform: 'translate(-50%, -50%)',
-  minWidth: 200,
+  minWidth: 300,
   maxHeight: '85vh',
   padding: '$4',
-  marginTop: '-5vh',
-  // animation: `${fadeIn} 125ms linear, ${moveDown} 125ms cubic-bezier(0.22, 1, 0.36, 1)`,
-
-  // Among other things, prevents text alignment inconsistencies when dialog can't be centered in the viewport evenly.
-  // Affects animated and non-animated dialogs alike.
   willChange: 'transform',
+  backgroundColor: "$mauve1",
+  borderRadius: '$2',
+  boxShadow: '$colors$mauveA6 0 10px 38px -10px, $colors$mauveA12 0 10px 20px -15px',
 
   '&:focus': {
     outline: 'none',
@@ -47,8 +46,8 @@ const StyledContent = styled(DialogPrimitive.Content, panelStyles, {
 
 const StyledCloseButton = styled(DialogPrimitive.Close, {
   position: 'absolute',
-  top: '$2',
-  right: '$2',
+  top: '$1',
+  right: '$1',
 });
 
 type DialogContentPrimitiveProps = React.ComponentProps<typeof DialogPrimitive.Content>;
