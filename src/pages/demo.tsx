@@ -6,7 +6,7 @@ import { Button } from '../components/button';
 import { AnimatedHeading } from '../components/demo/animated-heading';
 // @ts-ignore
 import { initialize, start, stop, send } from '../utils/wags/handoff';
-import { DialogContent, Dialog } from '@components/index';
+import { Dialog, DialogContent, Text } from '@components/index';
 
 const Container = styled('div', {
 	height: '80vh',
@@ -22,6 +22,7 @@ const Demo = () => {
 	const [demoInitialized, setDemoInitialized] =
 		useState<DemoInitialized | void>();
 	const [demoStarted, setDemoStarted] = useState<DemoStarted | void>();
+	const [dialogOpen, setDialogOpen] = useState(true);
 	const { stepNumber } = router.query;
 	const stepQueryParams =
 		stepNumber && typeof stepNumber === 'string'
@@ -49,6 +50,26 @@ const Demo = () => {
 	return (
 		<Container>
 			<div>
+				<Dialog
+					open={dialogOpen}
+					onOpenChange={() => setDialogOpen(!dialogOpen)}
+				>
+					<DialogContent>
+						<Text>
+							This demo of wavr requires audio, please make sure your device is unmuted. For the best experience, please use headphones!
+						</Text>
+						<div
+							style={{
+								display: 'flex',
+								justifyContent: 'flex-end',
+								marginTop: 16,
+							}}
+						>
+							<Button size="2">Okay</Button>
+						</div>
+					</DialogContent>
+				</Dialog>
+
 				{step === 0 && (
 					<>
 						<AnimatedHeading text="Peek into what's possible" />

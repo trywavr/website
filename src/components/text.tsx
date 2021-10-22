@@ -3,7 +3,7 @@ import { styled } from '../../stitches.config';
 export const Text = styled('p', {
 	// Reset
 	fontFamily: '$inter',
-	lineHeight: '1',
+	lineHeight: '1.4',
 	margin: '0',
 	fontWeight: 400,
 	fontVariantNumeric: 'tabular-nums',
