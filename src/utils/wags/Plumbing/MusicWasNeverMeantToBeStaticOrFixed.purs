@@ -8,9 +8,9 @@ import Data.Newtype (unwrap)
 import Data.Profunctor (lcmap)
 import WAGSI.Plumbing.Cycle (Cycle)
 import WAGSI.Plumbing.DemoTypes (Interactivity)
-import WAGSI.Plumbing.Tidal (betwixt, lnr, lnv, make, onTag, parse, s)
+import WAGSI.Plumbing.Tidal (lnr, make, parse, s)
 import WAGSI.Plumbing.Types (TheFuture, IsFresh, Note)
-import Wags.Learn.Oscillator (lfo)
+--import Wags.Learn.Oscillator (lfo)
 
 m2 = 4.0 * 1.0 * 60.0/111.0 :: Number
 
