@@ -6,6 +6,7 @@ import { Button } from '../components/button';
 import { AnimatedHeading } from '../components/demo/animated-heading';
 // @ts-ignore
 import { initialize, start, stop, send } from '../utils/wags/handoff';
+import { DialogContent, Dialog } from '@components/index';
 
 const Container = styled('div', {
 	height: '80vh',

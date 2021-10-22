@@ -1,9 +1,10 @@
 import React from 'react';
+import { Text } from '@components/index';
 
 export const Step7 = () => {
-  return (
-    <>
-      <h1>Step 7</h1>
-    </>
-  )
-}
+	return (
+		<>
+			<Text>Step 7</Text>
+		</>
+	);
+};
