@@ -92,9 +92,6 @@ const Demo = () => {
 							text="Music was never meant to be static or fixed."
 							lineTwo="Music must explode with possibilities."
 						/>
-						<Button onClick={startExample} size="3" variant="transparentWhite">
-							Make sound
-						</Button>
 					</>
 				)}
 				{step === 2 && demoInitialized && (
