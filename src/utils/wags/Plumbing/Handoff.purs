@@ -39,10 +39,10 @@ initialize = fromAff do
   bufCache <- liftEffect $ Ref.new Map.empty
   interactivity <- liftEffect create
   -- todo: some of these may not be necessary
-  map fold $ traverse (doDownloads ctx bufCache (const $ pure unit)) [
-    loFi { isFresh: true, value: Nil },
-    musicWasNeverMeantToBeStaticOrFixed { isFresh: true, value: Nil }
-  ]
+  map fold $ traverse (doDownloads ctx bufCache (const $ pure unit))
+    [ loFi { isFresh: true, value: Nil }
+    , musicWasNeverMeantToBeStaticOrFixed { isFresh: true, value: Nil }
+    ]
   liftEffect $ close ctx
   pure { bufCache, interactivity }
 

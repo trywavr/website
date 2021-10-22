@@ -113,8 +113,6 @@ initialBuffers bf (ac /\ aff) = ac /\ do
 mapped2 :: BufferUrl -> Aff ArrayBuffer
 mapped2 (BufferUrl bf) = backoff $ toAffE $ fetchArrayBufferFromUri bf
 
-
-
 getRawBuffers
   :: Map Sample BufferUrl
   -> Aff (Map Sample ArrayBuffer)
