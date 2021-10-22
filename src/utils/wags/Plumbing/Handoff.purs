@@ -20,6 +20,7 @@ import WAGS.Run (run, Run)
 import WAGS.WebAPI (AudioContext)
 import WAGSI.Plumbing.Engine (engine)
 import WAGSI.Plumbing.Example as Example
+import WAGSI.Plumbing.LoFi (loFi)
 import WAGSI.Plumbing.MusicWasNeverMeantToBeStaticOrFixed (musicWasNeverMeantToBeStaticOrFixed)
 import WAGSI.Plumbing.Tidal (openFuture)
 import WAGSI.Plumbing.Types (BufferUrl, Sample, ForwardBackwards)
@@ -37,7 +38,11 @@ initialize = fromAff do
   ctx <- liftEffect context
   bufCache <- liftEffect $ Ref.new Map.empty
   interactivity <- liftEffect create
-  map fold $ traverse (doDownloads ctx bufCache (const $ pure unit)) [ musicWasNeverMeantToBeStaticOrFixed { isFresh: true, value: Nil }]
+  -- todo: some of these may not be necessary
+  map fold $ traverse (doDownloads ctx bufCache (const $ pure unit)) [
+    loFi { isFresh: true, value: Nil },
+    musicWasNeverMeantToBeStaticOrFixed { isFresh: true, value: Nil }
+  ]
   liftEffect $ close ctx
   pure { bufCache, interactivity }
 
