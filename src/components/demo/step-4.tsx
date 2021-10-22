@@ -11,10 +11,11 @@ import {
 	Beat7,
 	Beat8,
 } from '@components/icons';
+import { motion } from 'framer-motion';
 // @ts-expect-error TODO fix types
 import { send } from '../../utils/wags/handoff';
 
-const StyledDrum = styled('div', {
+const StyledDrum = styled(motion.div, {
 	display: 'flex',
 	alignItems: 'center',
 	justifyContent: 'flex-start',
@@ -48,17 +49,41 @@ const Drum = ({
 	isActive: Boolean;
 	onClick: MouseEventHandler<HTMLDivElement>;
 }) => {
+	const item = {
+		hidden: {
+			opacity: 0,
+			x: -50,
+		},
+		show: {
+			opacity: 1,
+			x: 0,
+		},
+	};
 	return (
-		<StyledDrum onClick={onClick} toggle={isActive ? 'on' : 'off'}>
+		<StyledDrum
+			onClick={onClick}
+			toggle={isActive ? 'on' : 'off'}
+			variants={item}
+			initial="hidden"
+			animate="show"
+		>
 			{children}
 		</StyledDrum>
 	);
 };
 
-type Beat = "BC'C1" | "BC'C2" | "BC'C3" | "BC'C4" | "BC'C5" | "BC'C6" | "BC'C7" | "BC'C8";
+type Beat =
+	| "BC'C1"
+	| "BC'C2"
+	| "BC'C3"
+	| "BC'C4"
+	| "BC'C5"
+	| "BC'C6"
+	| "BC'C7"
+	| "BC'C8";
 
 export const Step4 = ({
-	demoInitialized
+	demoInitialized,
 }: {
 	demoInitialized: DemoInitialized;
 }) => {
@@ -73,8 +98,26 @@ export const Step4 = ({
 		{ beat: "BC'C8", svg: Beat8 },
 	];
 	const [selectedDrum, setSelectedDrum] = useState(drums[0]);
+	const container = {
+		hidden: {
+			opacity: 0,
+		},
+		show: {
+			opacity: 1,
+			transition: {
+				staggerChildren: 0.5,
+			},
+		},
+	};
+
 	return (
-		<Grid gap="6" columns="2">
+		<Grid
+			gap="6"
+			columns="2"
+			variants={container}
+			initial="hidden"
+			animate="show"
+		>
 			{drums.map(drum => (
 				<Drum
 					key={drum.beat}

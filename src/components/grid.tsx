@@ -1,6 +1,7 @@
 import { styled } from '../../stitches.config';
+import { motion } from 'framer-motion';
 
-export const Grid = styled('div', {
+export const Grid = styled(motion.div, {
   boxSizing: 'border-box',
   display: 'grid',
 
