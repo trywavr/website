@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { styled } from '@stitches/react';
 import { useRouter } from 'next/router';
-import { Step0, Step2, Step3 } from '../components/demo';
+import { Step0, Step2, Step3, Step4 } from '../components/demo';
 import { Button } from '../components/button';
 import { AnimatedHeading } from '../components/demo/animated-heading';
 // @ts-ignore
@@ -56,7 +56,8 @@ const Demo = () => {
 				>
 					<DialogContent>
 						<Text>
-							This demo of wavr requires audio, please make sure your device is unmuted. For the best experience, please use headphones!
+							This demo of wavr requires audio, please make sure your device is
+							unmuted. For the best experience, please use headphones!
 						</Text>
 						<div
 							style={{
@@ -102,7 +103,7 @@ const Demo = () => {
 				{step === 4 && (
 					<>
 						<AnimatedHeading text="The possibility to change a beat..." />
-						{/* <Step4 /> */}
+						<Step4 />
 					</>
 				)}
 				{step === 5 && (
@@ -145,7 +146,13 @@ const Demo = () => {
 			<div style={{ display: 'flex', justifyContent: 'flex-end' }}>
 				{step > 0 && (
 					<>
-						<Button onClick={() => setStep(step - 1)} size={2}>
+						<Button
+							onClick={() => {
+								setStep(step - 1);
+								router.push(`/demo?stepNumber=${step - 1}`);
+							}}
+							size={2}
+						>
 							Back
 						</Button>
 						<div style={{ width: 16 }} />

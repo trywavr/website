@@ -1,6 +1,7 @@
 export * from './button';
 export * from './checkbox';
 export * from './dialog';
+export * from './grid';
 export * from './icon-button';
 export * from './overlay';
 export * from './panel';
