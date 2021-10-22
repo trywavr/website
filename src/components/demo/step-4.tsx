@@ -8,8 +8,6 @@ import {
 	Beat4,
 	Beat5,
 	Beat6,
-	Beat7,
-	Beat8,
 } from '@components/icons';
 import { motion } from 'framer-motion';
 // @ts-expect-error TODO fix types
@@ -78,11 +76,9 @@ type Beat =
 	| "BC'C3"
 	| "BC'C4"
 	| "BC'C5"
-	| "BC'C6"
-	| "BC'C7"
-	| "BC'C8";
+	| "BC'C6";
 
-export const Step4 = ({
+	export const Step4 = ({
 	demoInitialized,
 }: {
 	demoInitialized: DemoInitialized;
@@ -94,8 +90,6 @@ export const Step4 = ({
 		{ beat: "BC'C4", svg: Beat4 },
 		{ beat: "BC'C5", svg: Beat5 },
 		{ beat: "BC'C6", svg: Beat6 },
-		{ beat: "BC'C7", svg: Beat7 },
-		{ beat: "BC'C8", svg: Beat8 },
 	];
 	const [selectedDrum, setSelectedDrum] = useState(drums[0]);
 	const container = {

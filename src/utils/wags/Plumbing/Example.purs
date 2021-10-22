@@ -4,6 +4,7 @@ import Prelude
 
 import Data.List (List(..), (:))
 import WAGSI.Plumbing.AddNewSounds (addNewSounds)
+import WAGSI.Plumbing.ChangeBeat (changeBeat)
 import WAGSI.Plumbing.DemoEvent (DemoEvent(..))
 import WAGSI.Plumbing.DemoTypes (Interactivity)
 import WAGSI.Plumbing.MusicWasNeverMeantToBeStaticOrFixed (musicWasNeverMeantToBeStaticOrFixed)
@@ -27,7 +28,7 @@ wag ifi@{ value } = case value of
     DE'Music_must_explode_with_possibilities -> musicWasNeverMeantToBeStaticOrFixed ifi
     DE'The_possibility_to_add_new_sounds _ -> addNewSounds
     DE'The_possibility_to_take_a_sound_in_a_new_direction _ -> newDirection
-    DE'The_possibility_to_change_a_beat _ -> make 1.0 { earth: s $ "tabla ", preload }
+    DE'The_possibility_to_change_a_beat cb -> changeBeat cb
     DE'The_possibility_to_harmonize _ -> make 1.0 { earth: s $ "hh ", preload }
     DE'The_possibility_to_glitch_crackle_and_shimmer _ -> make 1.0 { earth: s $ "bassdm ", preload }
     DE'The_possibility_to_shape_it_with_a_gesture _ -> make 1.0 { earth: s $ "tabla ", preload }
