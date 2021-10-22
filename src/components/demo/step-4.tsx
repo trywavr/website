@@ -69,7 +69,7 @@ export const Step4 = () => {
 		<Grid gap="6" columns="2">
 			{drums.map(drum => (
 				<Drum
-					isActive={selectedDrum === drum}
+					isActive={selectedDrum.beat === drum.beat}
 					onClick={() => setSelectedDrum(drum)}
 				>
 					{drum.svg}

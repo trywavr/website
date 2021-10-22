@@ -1,12 +1,10 @@
 import React, { useEffect, useState } from 'react';
 import { styled } from '@stitches/react';
 import { useRouter } from 'next/router';
-import { Step0, Step2, Step3, Step4 } from '../components/demo';
-import { Button } from '../components/button';
-import { AnimatedHeading } from '../components/demo/animated-heading';
+import { AnimatedHeading, Step0, Step2, Step3, Step4 } from '@components/demo';
 // @ts-ignore
 import { initialize, start, stop, send } from '../utils/wags/handoff';
-import { Dialog, DialogContent, Text } from '@components/index';
+import { Button, Dialog, DialogContent, Text } from '@components/index';
 
 const Container = styled('div', {
 	height: '80vh',
@@ -50,7 +48,7 @@ const Demo = () => {
 	return (
 		<Container>
 			<div>
-				<Dialog
+				{/* <Dialog
 					open={dialogOpen}
 					onOpenChange={() => setDialogOpen(!dialogOpen)}
 				>
@@ -69,7 +67,7 @@ const Demo = () => {
 							<Button size="2">Okay</Button>
 						</div>
 					</DialogContent>
-				</Dialog>
+				</Dialog> */}
 
 				{step === 0 && (
 					<>
