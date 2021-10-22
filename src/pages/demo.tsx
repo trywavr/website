@@ -30,7 +30,7 @@ const Demo = () => {
 
 	useEffect(() => {
 		setStep(stepQueryParams || 0);
-	}, [stepNumber]);
+	}, [stepNumber, stepQueryParams]);
 
 	const startExample = async () => {
 		demoStarted && stop(demoStarted)();
