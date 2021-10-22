@@ -1,4 +1,5 @@
 import React, { Dispatch, SetStateAction } from 'react';
+import Image from 'next/image';
 import { styled } from '@stitches/react';
 import { Text } from '@components/index';
 import { PlayIcon } from '@radix-ui/react-icons';
@@ -21,16 +22,23 @@ export const Step0 = ({
 		<>
 			<Box onClick={() => setStep(1)}>
 				<div style={{ display: 'flex', alignItems: 'center' }}>
-					<img
-						src="https://upload.wikimedia.org/wikipedia/en/d/d8/Prince_kiss.jpg"
+					<div
 						style={{
-							width: 40,
+							position: 'relative',
 							height: 40,
-							backgroundColor: 'gray',
-							marginRight: 16,
+							width: 40,
 							borderRadius: 6,
+							marginRight: 16,
+							overflow: 'hidden',
 						}}
-					/>
+					>
+						<Image
+							alt="Prince Kiss album art"
+							src="https://upload.wikimedia.org/wikipedia/en/d/d8/Prince_kiss.jpg"
+							layout="fill"
+							objectFit="cover"
+						/>
+					</div>
 					<div
 						style={{
 							height: '100%',
