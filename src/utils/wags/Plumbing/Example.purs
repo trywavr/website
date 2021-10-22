@@ -3,6 +3,7 @@ module WAGSI.Plumbing.Example where
 import Prelude
 
 import Data.List (List(..), (:))
+import Debug (spy)
 import WAGSI.Plumbing.AddNewSounds (addNewSounds)
 import WAGSI.Plumbing.DemoEvent (DemoEvent(..))
 import WAGSI.Plumbing.DemoTypes (Interactivity)
@@ -24,7 +25,7 @@ wag ifi@{ isFresh, value } = case value of
   ({ value: v } : _) -> case v of
     DE'Music_was_never_meant_to_be_static_or_fixed -> musicWasNeverMeantToBeStaticOrFixed ifi
     DE'Music_must_explode_with_possibilities -> musicWasNeverMeantToBeStaticOrFixed ifi
-    DE'The_possibility_to_add_new_sounds ans -> addNewSounds {isFresh, value:ans }
+    DE'The_possibility_to_add_new_sounds ans -> addNewSounds
     DE'The_possibility_to_take_a_sound_in_a_new_direction _ -> make 1.0 { earth: s $ "bassdm ", preload }
     DE'The_possibility_to_change_a_beat _ -> make 1.0 { earth: s $ "tabla ", preload }
     DE'The_possibility_to_harmonize _ -> make 1.0 { earth: s $ "hh ", preload }

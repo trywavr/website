@@ -60,16 +60,17 @@ const Instrument = ({
 	return (
 		<InstrumentCard
 			onClick={() => {
-				send(demoInitialized)({
-					tag: "DE'The_possibility_to_add_new_sounds",
-					event: toggle,
-				})();
-				setToggle({
+				const newToggle = {
 					one: instrument === 'Happiness' ? !toggle.one : toggle.one,
 					two: instrument === 'Sadness' ? !toggle.two : toggle.two,
 					three: instrument === 'Confusion' ? !toggle.three : toggle.three,
 					four: instrument === 'Regret' ? !toggle.four : toggle.four,
-				});
+				}
+				send(demoInitialized)({
+					tag: "DE'The_possibility_to_add_new_sounds",
+					event: newToggle,
+				})();
+				setToggle(newToggle);
 			}}
 			toggle={toggleCondition ? 'on' : 'off'}
 			variants={listItem}
@@ -101,7 +102,7 @@ export const Step2 = ({
 		},
 	};
 	const [toggle, setToggle] = React.useState({
-		one: false,
+		one: true,
 		two: false,
 		three: false,
 		four: false,
