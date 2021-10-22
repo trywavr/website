@@ -141,7 +141,7 @@ const Demo = () => {
 							step === 1 &&
 								send(demoInitialized)({
 									tag: "DE'The_possibility_to_add_new_sounds",
-									event: { one: false, two: false, three: false, four: false },
+									event: { one: true, two: false, three: false, four: false },
 								})();
 							router.push(`/demo?stepNumber=${step + 1}`);
 						}}
