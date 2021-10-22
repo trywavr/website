@@ -7,6 +7,7 @@ type Step3State = {
 	slider: number;
 };
 const SLIDER_MAX = 50.0;
+
 export const Step3 = ({
 	demoInitialized,
 }: {

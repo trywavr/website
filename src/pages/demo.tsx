@@ -2,7 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { styled } from '@stitches/react';
 import { useRouter } from 'next/router';
 import { AnimatedHeading, Step0, Step2, Step3, Step4 } from '@components/demo';
-// @ts-ignore
+// @ts-expect-error TODO: fix types
 import { initialize, start, stop, send } from '../utils/wags/handoff';
 import { Button, Dialog, DialogContent, Text } from '@components/index';
 
@@ -48,7 +48,7 @@ const Demo = () => {
 	return (
 		<Container>
 			<div>
-				{/* <Dialog
+				<Dialog
 					open={dialogOpen}
 					onOpenChange={() => setDialogOpen(!dialogOpen)}
 				>
@@ -67,7 +67,7 @@ const Demo = () => {
 							<Button size="2">Okay</Button>
 						</div>
 					</DialogContent>
-				</Dialog> */}
+				</Dialog>
 
 				{step === 0 && (
 					<>
@@ -92,10 +92,10 @@ const Demo = () => {
 						<Step2 demoInitialized={demoInitialized} />
 					</>
 				)}
-				{step === 3 && (
+				{step === 3 && demoInitialized && (
 					<>
 						<AnimatedHeading text="The possibility to take a sound in a new direction..." />
-						<Step3 />
+						<Step3 demoInitialized={demoInitialized} />
 					</>
 				)}
 				{step === 4 && (

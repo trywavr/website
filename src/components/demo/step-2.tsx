@@ -3,6 +3,7 @@ import { SpeakerLoudIcon, SpeakerOffIcon } from '@radix-ui/react-icons';
 import { Text } from '../text';
 import { styled } from '@stitches/react';
 import { motion } from 'framer-motion';
+// @ts-expect-error TODO fix types
 import { send } from '../../utils/wags/handoff';
 
 const instruments = ['Happiness', 'Sadness', 'Confusion', 'Regret'];
