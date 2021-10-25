@@ -15,6 +15,8 @@ const Container = styled('div', {
 	margin: '40px auto 0 auto',
 });
 
+type DIDS = { demoStarted: DemoStarted, demoInitialized: DemoInitialized };
+
 const Demo = () => {
 	const router = useRouter();
 	const [demoInitialized, setDemoInitialized] =
@@ -92,7 +94,7 @@ const Demo = () => {
 									initializeAndStart(
 										(s: string) => () => console.error(s)
 									)().then(
-										({ demoStarted, demoInitialized }) => {
+										({ demoStarted, demoInitialized }: DIDS) => {
 											setDemoInitialized(demoInitialized);
 											setDemoStarted(demoStarted);
 											stepToSend(demoInitialized)(step);
@@ -117,7 +119,7 @@ const Demo = () => {
 								initializeAndStart(
 									(s: string) => () => console.error(s)
 								)().then(
-									({ demoStarted, demoInitialized }) => {
+									({ demoStarted, demoInitialized }: DIDS) => {
 										setDemoInitialized(demoInitialized);
 										setDemoStarted(demoStarted);
 										stepToSend(demoInitialized)(1);
@@ -211,7 +213,7 @@ const Demo = () => {
 					<Button
 						size={2}
 						onClick={() => {
-							stepToSend(step + 1);
+							demoInitialized && stepToSend(demoInitialized)(step + 1);
 							router.push(`/demo?stepNumber=${step + 1}`);
 						}}
 					>
