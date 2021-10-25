@@ -1,4 +1,4 @@
-module WAGSI.Plumbing.DemoEvent where
+module Wavr.DemoEvent where
 
 import Prelude
 
@@ -11,7 +11,7 @@ import Data.NonEmpty ((:|))
 import Data.Tuple.Nested ((/\))
 import Foreign (Foreign, ForeignError(..), F)
 import Simple.JSON as JSON
-import WAGSI.Plumbing.JSON (readVariant)
+import Wavr.JSON (readVariant)
 
 type DE'Add_new_sounds = { one :: Boolean, two :: Boolean, three :: Boolean, four :: Boolean }
 

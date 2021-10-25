@@ -1,4 +1,4 @@
-module WAGSI.Plumbing.JSON where
+module Wavr.JSON where
 
 import Prelude
 

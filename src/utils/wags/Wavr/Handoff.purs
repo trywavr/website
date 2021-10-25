@@ -1,8 +1,9 @@
-module WAGSI.Plumbing.Handoff where
+module Wavr.Handoff where
 
 import Prelude
 
 import Control.Promise (Promise, fromAff, toAffE)
+import Data.Either (Either(..))
 import Data.List (List(..), fold)
 import Data.Map (Map)
 import Data.Map as Map
@@ -16,15 +17,17 @@ import FRP.Event (EventIO, create, subscribe)
 import Foreign (Foreign)
 import WAGS.Interpret (close, context, contextResume, contextState, defaultFFIAudio, makeUnitCache)
 import WAGS.Lib.Learn (FullSceneBuilder(..))
+import WAGS.Lib.Tidal.Engine (engine)
+import WAGS.Lib.Tidal.Tidal (openFuture)
+import WAGS.Lib.Tidal.Types (BufferUrl, Sample, ForwardBackwards)
+import WAGS.Lib.Tidal.Util (r2b, doDownloads)
 import WAGS.Run (run, Run)
 import WAGS.WebAPI (AudioContext)
-import WAGSI.Plumbing.Engine (engine)
-import WAGSI.Plumbing.Example as Example
-import WAGSI.Plumbing.LoFi (loFi)
-import WAGSI.Plumbing.MusicWasNeverMeantToBeStaticOrFixed (musicWasNeverMeantToBeStaticOrFixed)
-import WAGSI.Plumbing.Tidal (openFuture)
-import WAGSI.Plumbing.Types (BufferUrl, Sample, ForwardBackwards)
-import WAGSI.Plumbing.Util (de2list, r2b, easingAlgorithm, consoleDemoEvent, doDownloads)
+import Wavr.Example as Example
+import Wavr.LoFi (loFi)
+import Wavr.MusicWasNeverMeantToBeStaticOrFixed (musicWasNeverMeantToBeStaticOrFixed)
+import Wavr.NewDirection (newDirection)
+import Wavr.Util (de2list, consoleDemoEvent, easingAlgorithm)
 
 type DemoInitialized =
   { bufCache :: Ref.Ref (Map Sample { url :: BufferUrl, buffer :: ForwardBackwards })
@@ -42,6 +45,7 @@ initialize = fromAff do
   map fold $ traverse (doDownloads ctx bufCache (const $ pure unit))
     [ loFi { isFresh: true, value: Nil }
     , musicWasNeverMeantToBeStaticOrFixed { isFresh: true, value: Nil }
+    , newDirection
     ]
   liftEffect $ close ctx
   pure { bufCache, interactivity }
@@ -60,7 +64,7 @@ start logger { bufCache, interactivity } = fromAff do
       engine
         (de2list $ consoleDemoEvent logger interactivity.event)
         (pure Example.wag)
-        ohBehave
+        (Left ohBehave)
   trigger /\ world <- snd $ triggerWorld (audioCtx /\ pure (pure {} /\ pure {}))
   doDownloads audioCtx bufCache (const $ pure unit) openFuture
   unsubscribe <- liftEffect $ subscribe

@@ -1,4 +1,4 @@
-module WAGSI.Plumbing.MusicWasNeverMeantToBeStaticOrFixed where
+module Wavr.MusicWasNeverMeantToBeStaticOrFixed where
 
 import Prelude
 
@@ -6,10 +6,10 @@ import Data.Lens (_Just, set, traversed)
 import Data.Maybe (Maybe)
 import Data.Newtype (unwrap)
 import Data.Profunctor (lcmap)
-import WAGSI.Plumbing.Cycle (Cycle)
-import WAGSI.Plumbing.DemoTypes (Interactivity)
-import WAGSI.Plumbing.Tidal (lnr, make, parse, s)
-import WAGSI.Plumbing.Types (TheFuture, IsFresh, Note)
+import WAGS.Lib.Tidal.Cycle (Cycle)
+import Wavr.DemoTypes (Interactivity)
+import WAGS.Lib.Tidal.Tidal (lnr, make, parse, s)
+import WAGS.Lib.Tidal.Types (TheFuture, IsFresh, Note)
 
 --import Wags.Learn.Oscillator (lfo)
 

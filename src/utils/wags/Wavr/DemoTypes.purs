@@ -1,6 +1,6 @@
-module WAGSI.Plumbing.DemoTypes where
+module Wavr.DemoTypes where
 
 import Data.List (List)
-import WAGSI.Plumbing.DemoEvent (DemoEvent)
+import Wavr.DemoEvent (DemoEvent)
 
 type Interactivity = List { time :: Number, value :: DemoEvent }

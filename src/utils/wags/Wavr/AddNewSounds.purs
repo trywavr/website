@@ -1,4 +1,4 @@
-module WAGSI.Plumbing.AddNewSounds where
+module Wavr.AddNewSounds where
 
 import Prelude
 
@@ -9,12 +9,12 @@ import Data.Newtype (unwrap)
 import Data.Profunctor (lcmap)
 import Math ((%))
 import WAGS.Create.Optionals (highpass, pan)
-import WAGSI.Plumbing.Cycle (Cycle)
-import WAGSI.Plumbing.DemoEvent (DE'Add_new_sounds, DemoEvent(..))
-import WAGSI.Plumbing.DemoTypes (Interactivity)
-import WAGSI.Plumbing.FX (fx, goodbye, hello)
-import WAGSI.Plumbing.Tidal (lnr, lnv, lvt, make, onTag, parse, s)
-import WAGSI.Plumbing.Types (Note, TheFuture, IsFresh)
+import WAGS.Lib.Tidal.Cycle (Cycle)
+import Wavr.DemoEvent (DE'Add_new_sounds, DemoEvent(..))
+import Wavr.DemoTypes (Interactivity)
+import WAGS.Lib.Tidal.FX (fx, goodbye, hello)
+import WAGS.Lib.Tidal.Tidal (lnr, lnv, lvt, make, onTag, parse, s)
+import WAGS.Lib.Tidal.Types (Note, TheFuture, IsFresh)
 import Wags.Learn.Oscillator (lfo)
 
 m2 = 4.0 * 1.0 * 60.0 / 111.0 :: Number

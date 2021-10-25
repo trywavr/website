@@ -1,17 +1,17 @@
-module WAGSI.Plumbing.Example where
+module Wavr.Example where
 
 import Prelude
 
 import Data.List (List(..), (:))
-import WAGSI.Plumbing.AddNewSounds (addNewSounds)
-import WAGSI.Plumbing.ChangeBeat (changeBeat)
-import WAGSI.Plumbing.DemoEvent (DemoEvent(..))
-import WAGSI.Plumbing.DemoTypes (Interactivity)
-import WAGSI.Plumbing.MusicWasNeverMeantToBeStaticOrFixed (musicWasNeverMeantToBeStaticOrFixed)
-import WAGSI.Plumbing.NewDirection (newDirection)
-import WAGSI.Plumbing.Samples as S
-import WAGSI.Plumbing.Tidal (make, s)
-import WAGSI.Plumbing.Types (TheFuture, IsFresh, Sample)
+import Wavr.AddNewSounds (addNewSounds)
+import Wavr.ChangeBeat (changeBeat)
+import Wavr.DemoEvent (DemoEvent(..))
+import Wavr.DemoTypes (Interactivity)
+import Wavr.MusicWasNeverMeantToBeStaticOrFixed (musicWasNeverMeantToBeStaticOrFixed)
+import Wavr.NewDirection (newDirection)
+import WAGS.Lib.Tidal.Samples as S
+import WAGS.Lib.Tidal.Tidal (make, s)
+import WAGS.Lib.Tidal.Types (TheFuture, IsFresh, Sample)
 
 --- API
 --- when we get the note to advance, we advance at the next possible juncture (this is how it currently works)

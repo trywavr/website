@@ -128,9 +128,9 @@ let additions =
         , version = "master"
         }
       , wags-lib =
-        { dependencies = [ "wags", "run" ]
+        { dependencies = [ "wags", "run", "string-parsers", "halogen" ]
         , repo = "https://github.com/mikesol/purescript-wags-lib.git"
-        , version = "v0.0.33"
+        , version = "v0.0.35"
         }
       , painting =
         { dependencies =
