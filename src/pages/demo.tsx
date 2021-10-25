@@ -3,7 +3,7 @@ import { styled } from '@stitches/react';
 import { useRouter } from 'next/router';
 import { AnimatedHeading, Step0, Step2, Step3, Step4 } from '@components/demo';
 // @ts-expect-error TODO: fix types
-import { initialize, start, stop, send } from '../utils/wags/handoff';
+import { initializeAndStart, send } from '../utils/wags/handoff';
 import { Button, Dialog, DialogContent, Text } from '@components/index';
 
 const Container = styled('div', {
@@ -15,37 +15,60 @@ const Container = styled('div', {
 	margin: '40px auto 0 auto',
 });
 
+type DIDS = { demoStarted: DemoStarted, demoInitialized: DemoInitialized };
+
 const Demo = () => {
 	const router = useRouter();
 	const [demoInitialized, setDemoInitialized] =
 		useState<DemoInitialized | void>();
 	const [demoStarted, setDemoStarted] = useState<DemoStarted | void>();
-	const [dialogOpen, setDialogOpen] = useState(true);
-	const { stepNumber } = router.query;
+	const queryKey = 'stepNumber';
+	const stepNumber =
+		router.query[queryKey] ||
+		router.asPath.match(new RegExp(`[&?]${queryKey}=(.*)(&|$)`));
+	const [dialogSeen, setDialogSeen] = useState<boolean>(false);
 	const stepQueryParams =
 		stepNumber && typeof stepNumber === 'string'
 			? parseInt(stepNumber)
+			: stepNumber instanceof Array
+			? parseInt(stepNumber[1])
 			: undefined;
 	const [step, setStep] = useState<number>(stepQueryParams || 0);
-
+	const [dialogOpen, setDialogOpen] = useState(step !== 0 && !dialogSeen);
 	useEffect(() => {
 		setStep(stepQueryParams || 0);
 	}, [stepNumber, stepQueryParams]);
 
-	const startExample = async () => {
-		demoStarted && stop(demoStarted)();
-		if (demoInitialized) {
-			console.log("starting");
-			await start((s: string) => () => console.error(s))(
-				demoInitialized
-			)().then(setDemoStarted);
-			send(demoInitialized)({
-				tag: "DE'Music_was_never_meant_to_be_static_or_fixed",
-			})();
-		} else {
-			console.error('Initialization not done yet');
-		}
-	};
+	const stepToSend = (di: DemoInitialized) => (stp: number) =>
+		stp === 0
+			? send(di)({
+					tag: "DE'Music_was_never_meant_to_be_static_or_fixed",
+			  })()
+			: stp === 1
+			? send(di)({
+					tag: "DE'Music_must_explode_with_possibilities",
+			  })()
+			: stp === 2
+			? send(di)({
+					tag: "DE'The_possibility_to_add_new_sounds",
+					event: { one: true, two: false, three: false, four: false },
+			  })()
+			: stp === 3
+			? send(di)({
+					tag: "DE'The_possibility_to_take_a_sound_in_a_new_direction",
+					event: {
+						checked: false,
+						choice: "NDC'C1",
+						slider: 0.5,
+					},
+			  })()
+			: stp === 4
+			? send(di)({
+					tag: "DE'The_possibility_to_change_a_beat",
+					event: "BC'C1",
+			  })()
+			: 0;
+
 	return (
 		<Container>
 			<div>
@@ -68,10 +91,17 @@ const Demo = () => {
 							<Button
 								size="2"
 								onClick={() => {
-									initialize().then(
-										(res: DemoInitialized) => {setDemoInitialized(res), console.log("initialization done");},
+									initializeAndStart(
+										(s: string) => () => console.error(s)
+									)().then(
+										({ demoStarted, demoInitialized }: DIDS) => {
+											setDemoInitialized(demoInitialized);
+											setDemoStarted(demoStarted);
+											stepToSend(demoInitialized)(step);
+										},
 										(err: Error) => console.error(err)
 									);
+									setDialogSeen(true);
 									setDialogOpen(false);
 								}}
 							>
@@ -84,7 +114,21 @@ const Demo = () => {
 				{step === 0 && (
 					<>
 						<AnimatedHeading text="Peek into what's possible" />
-						<Step0 onClick={startExample} setStep={setStep} />
+						<Step0
+							onClick={() =>
+								initializeAndStart(
+									(s: string) => () => console.error(s)
+								)().then(
+									({ demoStarted, demoInitialized }: DIDS) => {
+										setDemoInitialized(demoInitialized);
+										setDemoStarted(demoStarted);
+										stepToSend(demoInitialized)(1);
+									},
+									(err: Error) => console.error(err)
+								)
+							}
+							setStep={setStep}
+						/>
 					</>
 				)}
 				{step === 1 && (
@@ -169,25 +213,7 @@ const Demo = () => {
 					<Button
 						size={2}
 						onClick={() => {
-							step === 1 &&
-								send(demoInitialized)({
-									tag: "DE'The_possibility_to_add_new_sounds",
-									event: { one: true, two: false, three: false, four: false },
-								})();
-								step === 2 &&
-								send(demoInitialized)({
-									tag: "DE'The_possibility_to_take_a_sound_in_a_new_direction",
-									event: {
-										checked: false,
-										choice: "NDC'C1",
-										slider: 0.5,
-									},
-								})();
-								step === 3 &&
-								send(demoInitialized)({
-									tag: "DE'The_possibility_to_change_a_beat",
-									event: "BC'C1",
-								})();
+							demoInitialized && stepToSend(demoInitialized)(step + 1);
 							router.push(`/demo?stepNumber=${step + 1}`);
 						}}
 					>

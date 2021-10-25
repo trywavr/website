@@ -1,6 +1,7 @@
 { name = "wavr-website"
 , dependencies =
-  [  "aff-promise"
+  [ "aff"
+  , "aff-promise"
   , "behaviors"
   , "control"
   , "datetime"

@@ -11,6 +11,7 @@ import Data.Traversable (traverse)
 import Data.Tuple (snd)
 import Data.Tuple.Nested ((/\))
 import Effect (Effect)
+import Effect.Aff (Aff, bracket)
 import Effect.Class (liftEffect)
 import Effect.Ref as Ref
 import FRP.Event (EventIO, create, subscribe)
@@ -36,9 +37,21 @@ type DemoInitialized =
 
 type DemoStarted = { audioCtx :: AudioContext, unsubscribe :: Effect Unit }
 
-initialize :: Effect (Promise DemoInitialized)
-initialize = fromAff do
+foreign import primePump :: AudioContext -> Effect Unit
+
+initializeAndStart :: (String -> Effect Unit) -> Effect (Promise { demoInitialized :: DemoInitialized, demoStarted :: DemoStarted })
+initializeAndStart logger = do
   ctx <- liftEffect context
+  liftEffect $ primePump ctx
+  fromAff do
+    cstate <- liftEffect $ contextState ctx
+    when (cstate /= "running") (toAffE $ contextResume ctx)
+    demoInitialized <- initialize_ ctx
+    demoStarted <- start_ ctx logger demoInitialized
+    pure { demoInitialized, demoStarted }
+
+initialize_ :: AudioContext -> Aff DemoInitialized
+initialize_ ctx = do
   bufCache <- liftEffect $ Ref.new Map.empty
   interactivity <- liftEffect create
   -- todo: some of these may not be necessary
@@ -47,13 +60,19 @@ initialize = fromAff do
     , musicWasNeverMeantToBeStaticOrFixed { isFresh: true, value: Nil }
     , newDirection
     ]
-  liftEffect $ close ctx
   pure { bufCache, interactivity }
 
+initialize :: Effect (Promise DemoInitialized)
+initialize = fromAff $ bracket (liftEffect context) (liftEffect <<< close) initialize_
+
 start :: (String -> Effect Unit) -> DemoInitialized -> Effect (Promise DemoStarted)
-start logger { bufCache, interactivity } = fromAff do
-  let ohBehave = r2b bufCache
+start logger di = fromAff do
   audioCtx <- liftEffect context
+  start_ audioCtx logger di
+
+start_ :: AudioContext -> (String -> Effect Unit) -> DemoInitialized -> Aff DemoStarted
+start_ audioCtx logger { bufCache, interactivity } = do
+  let ohBehave = r2b bufCache
   cstate <- liftEffect $ contextState audioCtx
   when (cstate /= "running") (toAffE $ contextResume audioCtx)
   unitCache <- liftEffect makeUnitCache
