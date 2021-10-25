@@ -15,12 +15,14 @@ const Box = styled('div', {
 
 export const Step0 = ({
 	setStep,
+	onClick
 }: {
 	setStep: Dispatch<SetStateAction<number>>;
+	onClick: () => void;
 }) => {
 	return (
 		<>
-			<Box onClick={() => setStep(1)}>
+			<Box onClick={() => {onClick(); setStep(1)}}>
 				<div style={{ display: 'flex', alignItems: 'center' }}>
 					<div
 						style={{

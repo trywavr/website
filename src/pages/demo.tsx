@@ -35,6 +35,7 @@ const Demo = () => {
 	const startExample = async () => {
 		demoStarted && stop(demoStarted)();
 		if (demoInitialized) {
+			console.log("starting");
 			await start((s: string) => () => console.error(s))(
 				demoInitialized
 			)().then(setDemoStarted);
@@ -68,7 +69,7 @@ const Demo = () => {
 								size="2"
 								onClick={() => {
 									initialize().then(
-										(res: DemoInitialized) => setDemoInitialized(res),
+										(res: DemoInitialized) => {setDemoInitialized(res), console.log("initialization done");},
 										(err: Error) => console.error(err)
 									);
 									setDialogOpen(false);
@@ -83,7 +84,7 @@ const Demo = () => {
 				{step === 0 && (
 					<>
 						<AnimatedHeading text="Peek into what's possible" />
-						<Step0 setStep={setStep} />
+						<Step0 onClick={startExample} setStep={setStep} />
 					</>
 				)}
 				{step === 1 && (
