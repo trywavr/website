@@ -37,12 +37,18 @@ type DemoInitialized =
 
 type DemoStarted = { audioCtx :: AudioContext, unsubscribe :: Effect Unit }
 
+foreign import primePump :: AudioContext -> Effect Unit
+
 initializeAndStart :: (String -> Effect Unit) -> Effect (Promise { demoInitialized :: DemoInitialized, demoStarted :: DemoStarted })
-initializeAndStart logger = fromAff do
+initializeAndStart logger = do
   ctx <- liftEffect context
-  demoInitialized <- initialize_ ctx
-  demoStarted <- start_ ctx logger demoInitialized
-  pure { demoInitialized, demoStarted }
+  liftEffect $ primePump ctx
+  fromAff do
+    cstate <- liftEffect $ contextState ctx
+    when (cstate /= "running") (toAffE $ contextResume ctx)
+    demoInitialized <- initialize_ ctx
+    demoStarted <- start_ ctx logger demoInitialized
+    pure { demoInitialized, demoStarted }
 
 initialize_ :: AudioContext -> Aff DemoInitialized
 initialize_ ctx = do
