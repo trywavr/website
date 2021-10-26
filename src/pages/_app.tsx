@@ -1,11 +1,11 @@
 import React from 'react';
 import type { AppProps } from 'next/app';
-import { IdProvider } from '@radix-ui/react-id';
 import { styled } from '@stitches/react';
 import { Navigation } from '../components/navigation';
 import { ThemeProvider } from 'next-themes';
 import { darkTheme } from '../../stitches.config';
 import Head from 'next/head';
+import { DesignSystemProvider } from '@components/design-system-provider';
 
 const MainContainer = styled('main', {
 	minHeight: '90vh',
@@ -14,7 +14,7 @@ const MainContainer = styled('main', {
 
 function MyApp({ Component, pageProps }: AppProps) {
 	return (
-		<IdProvider>
+		<DesignSystemProvider>
 			<ThemeProvider
 				disableTransitionOnChange
 				attribute="class"
@@ -64,7 +64,7 @@ function MyApp({ Component, pageProps }: AppProps) {
 					<Component {...pageProps} />
 				</MainContainer>
 			</ThemeProvider>
-		</IdProvider>
+		</DesignSystemProvider>
 	);
 }
 export default MyApp;
