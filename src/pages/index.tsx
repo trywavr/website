@@ -2,8 +2,13 @@ import React from 'react';
 import type { NextPage } from 'next';
 import { styled } from '@stitches/react';
 import { Text } from '../components/text';
-import { TwitterLogoIcon, GitHubLogoIcon, MixIcon } from '@radix-ui/react-icons';
+import {
+	TwitterLogoIcon,
+	GitHubLogoIcon,
+	MixIcon,
+} from '@radix-ui/react-icons';
 import { IconButton } from '../components/icon-button';
+import { useRouter } from 'next/router';
 
 const Container = styled('div', {
 	display: 'flex',
@@ -22,6 +27,7 @@ const H1 = styled('h1', {
 });
 
 const Home: NextPage = () => {
+	const router = useRouter();
 	return (
 		<Container>
 			<H1>Dynamic audio experiences for artists, creators and listeners.</H1>
@@ -51,7 +57,7 @@ const Home: NextPage = () => {
 				>
 					<GitHubLogoIcon />
 				</IconButton>
-				<IconButton size="3" as="a" href="/demo" >
+				<IconButton size="3" onClick={() => router.push('/demo')}>
 					<MixIcon />
 				</IconButton>
 			</div>

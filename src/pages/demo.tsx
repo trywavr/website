@@ -1,7 +1,14 @@
 import React, { useEffect, useState } from 'react';
 import { styled } from '@stitches/react';
 import { useRouter } from 'next/router';
-import { AnimatedHeading, Step0, Step2, Step3, Step4 } from '@components/demo';
+import {
+	AnimatedHeading,
+	Step0,
+	Step2,
+	Step3,
+	Step4,
+	Step7,
+} from '@components/demo';
 // @ts-expect-error TODO: fix types
 import { initializeAndStart, send } from '../utils/wags/handoff';
 import { Button, Dialog, DialogContent, Text } from '@components/index';
@@ -15,7 +22,7 @@ const Container = styled('div', {
 	margin: '40px auto 0 auto',
 });
 
-type DIDS = { demoStarted: DemoStarted, demoInitialized: DemoInitialized };
+type DIDS = { demoStarted: DemoStarted; demoInitialized: DemoInitialized };
 
 const Demo = () => {
 	const router = useRouter();
@@ -172,7 +179,7 @@ const Demo = () => {
 				{step === 7 && (
 					<>
 						<AnimatedHeading text="The possibility to shape it with a gesture..." />
-						{/* <Step7 /> */}
+						<Step7 />
 					</>
 				)}
 				{step === 8 && (
@@ -213,7 +220,25 @@ const Demo = () => {
 					<Button
 						size={2}
 						onClick={() => {
-							demoInitialized && stepToSend(demoInitialized)(step + 1);
+							step === 1 &&
+								send(demoInitialized)({
+									tag: "DE'The_possibility_to_add_new_sounds",
+									event: { one: true, two: false, three: false, four: false },
+								})();
+							step === 2 &&
+								send(demoInitialized)({
+									tag: "DE'The_possibility_to_take_a_sound_in_a_new_direction",
+									event: {
+										checked: false,
+										choice: "NDC'C1",
+										slider: 0.5,
+									},
+								})();
+							step === 3 &&
+								send(demoInitialized)({
+									tag: "DE'The_possibility_to_change_a_beat",
+									event: "BC'C1",
+								})();
 							router.push(`/demo?stepNumber=${step + 1}`);
 						}}
 					>
