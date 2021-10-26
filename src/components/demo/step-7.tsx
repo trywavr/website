@@ -4,7 +4,7 @@ import { Text } from '@components/index';
 import { motion } from 'framer-motion';
 
 const MotionContainer = styled(motion.div, {
-	height: 300,
+	height: 316,
 	width: '100%',
 	borderRadius: 6,
 	display: 'flex',
