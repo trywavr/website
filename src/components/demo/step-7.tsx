@@ -24,6 +24,7 @@ const MotionHandle = styled(motion.div, {
 	background: '$mauve1',
 	boxShadow: '0 0 16px 0 $colors$violetA3',
 	zIndex: 1,
+	transition: 'box-shadow 0.2s',
 	cursor: 'grab',
 	'&:active': {
 		cursor: 'grabbing',
