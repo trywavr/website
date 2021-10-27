@@ -38,6 +38,11 @@ const u =
 	(y: (t: T) => U) =>
 		y(x);
 
+const u$ =
+	<T,>(x: T | null | undefined) =>
+	(y: (t: T) => void) =>
+		x && y(x);
+
 const calcSlope =
 	(x0: number) => (y0: number) => (x1: number) => (y1: number) => (x: number) =>
 		x1 == x0
@@ -58,34 +63,20 @@ export const Step7 = ({
 				<MotionHandle
 					drag
 					onDrag={(event, info) => {
-						const h =
-							(constraintsRef &&
-								constraintsRef.current &&
-								constraintsRef.current.offsetHeight) ||
-							0.0;
-						const w =
-							(constraintsRef &&
-								constraintsRef.current &&
-								constraintsRef.current.offsetWidth) ||
-							0.0;
-						const t =
-							(constraintsRef &&
-								constraintsRef.current &&
-								constraintsRef.current.offsetTop) ||
-							0.0;
-						const l =
-							(constraintsRef &&
-								constraintsRef.current &&
-								constraintsRef.current.offsetLeft) ||
-							0.0;
-						const packet = {
-							tag: "DE'The_possibility_to_shape_it_with_a_gesture",
-							event: {
-								x: calcSlope(l)(0.0)(l + w)(1.0)(info.point.x),
-								y: calcSlope(t)(0.0)(t + h)(1.0)(info.point.y),
-							},
-						};
-						send(demoInitialized)(packet)();
+						u$(constraintsRef && constraintsRef.current)(cr => {
+							const h = cr.offsetHeight || 0.0;
+							const w = cr.offsetWidth || 0.0;
+							const t = cr.offsetTop || 0.0;
+							const l = cr.offsetLeft || 0.0;
+							const packet = {
+								tag: "DE'The_possibility_to_shape_it_with_a_gesture",
+								event: {
+									x: calcSlope(l)(0.0)(l + w)(1.0)(info.point.x),
+									y: calcSlope(t)(0.0)(t + h)(1.0)(info.point.y),
+								},
+							};
+							send(demoInitialized)(packet)();
+						});
 					}}
 					dragElastic={0.2}
 					dragMomentum={false}
