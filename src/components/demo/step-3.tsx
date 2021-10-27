@@ -53,8 +53,6 @@ export const Step3 = ({
 					}
 					size="2"
 				/>
-				<Checkbox size="2" />
-				<Checkbox size="2" />
 			</div>
 			<RadioGroup
 				onValueChange={v =>
