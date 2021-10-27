@@ -7,8 +7,9 @@ const MotionGlitch = styled(motion.div, {
 	height: 80,
 	width: 80,
 	borderRadius: '$2',
-	backgroundColor: '$violet6',
-	opacity: 0.5,
+	backgroundColor: '$violet8',
+	opacity: 0.25,
+	boxShadow: '0 0 16px 0 $colors$violetA9',
 });
 
 export const Step6 = ({
