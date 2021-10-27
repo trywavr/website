@@ -96,6 +96,6 @@ bt5 =
 
 bt6 =
   """
-  tabla:23;r1 tabla2:31 tabla2:32 tabla2:33
+  [tabla:23;r1 tabla2:31 tabla2:32 tabla2:33]
   [tabla2:41 tabla2:31 tabla2:32 tabla2:33 tabla2:31 tabla2:32]
         """ :: String
