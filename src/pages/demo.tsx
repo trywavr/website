@@ -214,18 +214,6 @@ const Demo = () => {
 				)}
 				{step === 8 && (
 					<>
-						<AnimatedHeading text="The possibility to bring listeners to uncharted musical territory..." />
-						{/* <Step8 /> */}
-					</>
-				)}
-				{step === 9 && (
-					<>
-						<AnimatedHeading text="And the possibility to bring them back again." />
-						{/* <Step9 /> */}
-					</>
-				)}
-				{step === 10 && (
-					<>
 						<AnimatedHeading text="Music must explode with possibilities, and that's why we're building wavr." />
 					</>
 				)}
@@ -246,7 +234,7 @@ const Demo = () => {
 						<div style={{ width: 16 }} />
 					</>
 				)}
-				{step < 10 && step > 0 && (
+				{step < 8 && step > 0 && (
 					<Button
 						size={2}
 						onClick={() => {
