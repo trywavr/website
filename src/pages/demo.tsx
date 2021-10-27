@@ -64,7 +64,7 @@ const Demo = () => {
 			? send(di)({
 					tag: "DE'The_possibility_to_take_a_sound_in_a_new_direction",
 					event: {
-						checked: false,
+						check: false,
 						choice: "NDC'C1",
 						slider: 0.5,
 					},
@@ -257,7 +257,7 @@ const Demo = () => {
 								send(demoInitialized)({
 									tag: "DE'The_possibility_to_take_a_sound_in_a_new_direction",
 									event: {
-										checked: false,
+										check: false,
 										choice: "NDC'C1",
 										slider: 0.5,
 									},
