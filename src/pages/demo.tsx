@@ -74,6 +74,34 @@ const Demo = () => {
 					tag: "DE'The_possibility_to_change_a_beat",
 					event: "BC'C1",
 			  })()
+			: stp === 5
+			? send(di)({
+					tag: "DE'The_possibility_to_harmonize",
+					event: "H'Add_one",
+			  })()
+			: stp === 6
+			? send(di)({
+					tag: "DE'The_possibility_to_glitch_crackle_and_shimmer",
+					event: false,
+			  })()
+			: stp === 7
+			? send(di)({
+					tag: "DE'The_possibility_to_shape_it_with_a_gesture",
+					event: { x: 0.5, y: 0.5 },
+			  })()
+			: stp === 8
+			? send(di)({
+					tag: "DE'The_possibility_to_bring_listeners_to_uncharted_musical_territory",
+					event: 'end',
+			  })()
+			: stp === 9
+			? send(di)({
+					tag: "DE'And_the_possibility_to_bring_them_back_again",
+			  })()
+			: stp === 10
+			? send(di)({
+					tag: "DE'Music_must_explode_with_possibilities_2",
+			  })()
 			: 0;
 
 	return (
@@ -176,10 +204,10 @@ const Demo = () => {
 						{/* <Step6 /> */}
 					</>
 				)}
-				{step === 7 && (
+				{demoInitialized && step === 7 && (
 					<>
 						<AnimatedHeading text="The possibility to shape it with a gesture..." />
-						<Step7 />
+						<Step7 demoInitialized={demoInitialized} />
 					</>
 				)}
 				{step === 8 && (
