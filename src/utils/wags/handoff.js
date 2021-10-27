@@ -11525,7 +11525,7 @@ var PS = {};
             input: a,
           };
           connectXToY(false)(a)(ptr)(state.parent)(state)();
-          state.units[ptr].main.gain = 1.0;
+          state.units[ptr].main.gain.value = 1.0;
         };
       };
     };
@@ -11581,7 +11581,7 @@ var PS = {};
                     isSubgraph: true,
                     scenes: scenes,
                   };
-                  state.units[ptr].main.gain = 1.0;
+                  state.units[ptr].main.gain.value = 1.0;
                   for (var i = 0; i < scenes.length; i++) {
                     var applied = funk(envM(i)(vek[i]))(scenes[i]);
                     for (var j = 0; j < applied.instructions.length; j++) {
@@ -11637,7 +11637,7 @@ var PS = {};
                     isTumult: true,
                     scenes: scenes,
                   };
-                  state.units[ptr].main.gain = 1.0;
+                  state.units[ptr].main.gain.value = 1.0;
                   for (var i = 0; i < scenes.length; i++) {
                     var curScene = arrMaker(scenes[i])(nothing);
                     for (var j = 0; j < curScene.length; j++) {
@@ -11944,7 +11944,7 @@ var PS = {};
           }
           state.units[ptr].input = a;
           connectXToY(false)(a)(ptr)(state.parent)(state)();
-          state.units[ptr].main.gain = 1.0;
+          state.units[ptr].main.gain.value = 1.0;
         };
       };
     };
