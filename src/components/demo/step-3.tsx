@@ -4,7 +4,7 @@ import { Checkbox, Radio, RadioGroup, Slider } from '@components/index';
 import { send } from '../../utils/wags/handoff';
 
 type Step3State = {
-	checked: boolean;
+	check: boolean;
 	choice: "NDC'C1" | "NDC'C2" | "NDC'C3";
 	slider: number;
 };
@@ -16,7 +16,7 @@ export const Step3 = ({
 	demoInitialized: DemoInitialized;
 }) => {
 	const [step3State, setStep3State] = React.useState<Step3State>({
-		checked: false,
+		check: false,
 		choice: "NDC'C1",
 		slider: 0.0,
 	});
@@ -48,7 +48,7 @@ export const Step3 = ({
 					onCheckedChange={e =>
 						updateState({
 							...step3State,
-							checked: typeof e === 'boolean' ? e : false,
+							check: typeof e === 'boolean' ? e : false,
 						})
 					}
 					size="2"
