@@ -64,10 +64,10 @@ export const Step7 = ({
 					drag
 					onDrag={(event, info) => {
 						u$(constraintsRef && constraintsRef.current)(cr => {
-							const h = cr.offsetHeight || 0.0;
-							const w = cr.offsetWidth || 0.0;
-							const t = cr.offsetTop || 0.0;
-							const l = cr.offsetLeft || 0.0;
+							const h = cr.offsetHeight;
+							const w = cr.offsetWidth;
+							const t = cr.offsetTop;
+							const l = cr.offsetLeft;
 							const packet = {
 								tag: "DE'The_possibility_to_shape_it_with_a_gesture",
 								event: {
