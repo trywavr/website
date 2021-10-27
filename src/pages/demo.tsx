@@ -7,6 +7,7 @@ import {
 	Step2,
 	Step3,
 	Step4,
+	Step5,
 	Step7,
 } from '@components/demo';
 // @ts-expect-error TODO: fix types
@@ -192,10 +193,10 @@ const Demo = () => {
 						<Step4 demoInitialized={demoInitialized} />
 					</>
 				)}
-				{step === 5 && (
+				{step === 5 && demoInitialized && (
 					<>
 						<AnimatedHeading text="The possibility to introduce harmony..." />
-						{/* <Step5 /> */}
+						<Step5 demoInitialized={demoInitialized} />
 					</>
 				)}
 				{step === 6 && (
