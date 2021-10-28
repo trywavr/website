@@ -2,7 +2,6 @@ module Wavr.DemoEvent where
 
 import Prelude
 
-import Control.Alt ((<|>))
 import Control.Monad.Error.Class (throwError)
 import Data.List (List(..))
 import Data.List.NonEmpty (NonEmptyList(..))
@@ -58,15 +57,6 @@ instance readJSONH :: JSON.ReadForeign DE'Harmonize where
         ]
     )
 
-data DE'Tree = DE'Leaf { left :: DE'Tree, right :: DE'Tree } | DE'End
-
-derive instance eqDEL :: Eq DE'Tree
-derive instance ordDEL :: Ord DE'Tree
-instance readJSONTree :: JSON.ReadForeign DE'Tree where
-  readImpl i = DE'Leaf <$> JSON.readImpl i <|> do
-    e <- JSON.readImpl i
-    if e == "end" then pure DE'End else throwError (NonEmptyList ((ForeignError $ "Could not parse jsonTree: " <> e) :| Nil))
-
 type NewDir =
   { check :: Boolean
   , choice :: DE'New_dir_choice
@@ -84,8 +74,6 @@ data DemoEvent
   | DE'The_possibility_to_harmonize DE'Harmonize
   | DE'The_possibility_to_glitch_crackle_and_shimmer Boolean
   | DE'The_possibility_to_shape_it_with_a_gesture Pt
-  | DE'The_possibility_to_bring_listeners_to_uncharted_musical_territory DE'Tree
-  | DE'And_the_possibility_to_bring_them_back_again
   | DE'Music_must_explode_with_possibilities_2
   | DE'And_that's_why_we're_building_wavr
 
@@ -115,10 +103,6 @@ instance readJSONDE :: JSON.ReadForeign DemoEvent where
         DE'The_possibility_to_glitch_crackle_and_shimmer <$> (_.event <$> (JSON.readImpl :: Prs Boolean) i)
       "DE'The_possibility_to_shape_it_with_a_gesture" ->
         DE'The_possibility_to_shape_it_with_a_gesture <$> (_.event <$> (JSON.readImpl :: Prs Pt) i)
-      "DE'The_possibility_to_bring_listeners_to_uncharted_musical_territory" ->
-        DE'The_possibility_to_bring_listeners_to_uncharted_musical_territory <$> (_.event <$> (JSON.readImpl :: Prs DE'Tree) i)
-      "DE'And_the_possibility_to_bring_them_back_again" ->
-        pure DE'And_the_possibility_to_bring_them_back_again
       "DE'Music_must_explode_with_possibilities_2" ->
         pure DE'Music_must_explode_with_possibilities_2
       "DE'And_that's_why_we're_building_wavr" ->
