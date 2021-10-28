@@ -33,12 +33,12 @@ const MotionHandle = styled(motion.div, {
 		boxShadow: '0 0 16px 0 $colors$violetA10',
 	},
 });
-const u =
+const let_ =
 	<T, U>(x: T) =>
 	(y: (t: T) => U) =>
 		y(x);
 
-const u$ =
+const for_ =
 	<T,>(x: T | null | undefined) =>
 	(y: (t: T) => void) =>
 		x && y(x);
@@ -49,7 +49,7 @@ const calcSlope =
 			? y0
 			: y1 == y0
 			? y0
-			: u((y1 - y0) / (x1 - x0))(m => u(y0 - m * x0)(b => m * x + b));
+			: let_((y1 - y0) / (x1 - x0))(m => let_(y0 - m * x0)(b => m * x + b));
 
 export const Step7 = ({
 	demoInitialized,
@@ -63,7 +63,7 @@ export const Step7 = ({
 				<MotionHandle
 					drag
 					onDrag={(event, info) => {
-						u$(constraintsRef && constraintsRef.current)(cr => {
+						for_(constraintsRef && constraintsRef.current)(cr => {
 							const h = cr.offsetHeight;
 							const w = cr.offsetWidth;
 							const t = cr.offsetTop;
