@@ -93,15 +93,6 @@ const Demo = () => {
 			  })()
 			: stp === 8
 			? send(di)({
-					tag: "DE'The_possibility_to_bring_listeners_to_uncharted_musical_territory",
-					event: 'end',
-			  })()
-			: stp === 9
-			? send(di)({
-					tag: "DE'And_the_possibility_to_bring_them_back_again",
-			  })()
-			: stp === 10
-			? send(di)({
 					tag: "DE'Music_must_explode_with_possibilities_2",
 			  })()
 			: 0;
@@ -212,9 +203,16 @@ const Demo = () => {
 						<Step7 demoInitialized={demoInitialized} />
 					</>
 				)}
-				{step === 8 && (
+				{demoInitialized && step === 8 && (
 					<>
 						<AnimatedHeading text="Music must explode with possibilities, and that's why we're building wavr." />
+						<button
+							onClick={send(demoInitialized)({
+								tag: "DE'And_that's_why_we're_building_wavr",
+							})}
+						>
+							click me to trigger the end
+						</button>
 					</>
 				)}
 			</div>

@@ -32,7 +32,5 @@ wag ifi@{ value } = case value of
     DE'The_possibility_to_harmonize _ -> make 1.0 { earth: s $ "hh ", preload }
     DE'The_possibility_to_glitch_crackle_and_shimmer _ -> make 1.0 { earth: s $ "bassdm ", preload }
     DE'The_possibility_to_shape_it_with_a_gesture _ -> make 1.0 { earth: s $ "tabla ", preload }
-    DE'The_possibility_to_bring_listeners_to_uncharted_musical_territory _ -> make 1.0 { earth: s $ "hh ", preload }
-    DE'And_the_possibility_to_bring_them_back_again -> make 1.0 { earth: s $ "bassdm ", preload }
     DE'Music_must_explode_with_possibilities_2 -> make 1.0 { earth: s $ "tabla ", preload }
     DE'And_that's_why_we're_building_wavr -> make 1.0 { earth: s $ "hh ", preload }

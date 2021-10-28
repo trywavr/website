@@ -27895,7 +27895,6 @@ var PS = {};
   "use strict";
   $PS["Wavr.DemoEvent"] = $PS["Wavr.DemoEvent"] || {};
   var exports = $PS["Wavr.DemoEvent"];
-  var Control_Alt = $PS["Control.Alt"];
   var Control_Applicative = $PS["Control.Applicative"];
   var Control_Bind = $PS["Control.Bind"];
   var Control_Monad_Error_Class = $PS["Control.Monad.Error.Class"];
@@ -27911,22 +27910,6 @@ var PS = {};
   var Foreign = $PS["Foreign"];
   var Simple_JSON = $PS["Simple.JSON"];
   var Wavr_JSON = $PS["Wavr.JSON"];                
-  var DE$primeLeaf = (function () {
-      function DE$primeLeaf(value0) {
-          this.value0 = value0;
-      };
-      DE$primeLeaf.create = function (value0) {
-          return new DE$primeLeaf(value0);
-      };
-      return DE$primeLeaf;
-  })();
-  var DE$primeEnd = (function () {
-      function DE$primeEnd() {
-
-      };
-      DE$primeEnd.value = new DE$primeEnd();
-      return DE$primeEnd;
-  })();
   var NDC$primeC1 = (function () {
       function NDC$primeC1() {
 
@@ -28086,22 +28069,6 @@ var PS = {};
       };
       return DE$primeThe_possibility_to_shape_it_with_a_gesture;
   })();
-  var DE$primeThe_possibility_to_bring_listeners_to_uncharted_musical_territory = (function () {
-      function DE$primeThe_possibility_to_bring_listeners_to_uncharted_musical_territory(value0) {
-          this.value0 = value0;
-      };
-      DE$primeThe_possibility_to_bring_listeners_to_uncharted_musical_territory.create = function (value0) {
-          return new DE$primeThe_possibility_to_bring_listeners_to_uncharted_musical_territory(value0);
-      };
-      return DE$primeThe_possibility_to_bring_listeners_to_uncharted_musical_territory;
-  })();
-  var DE$primeAnd_the_possibility_to_bring_them_back_again = (function () {
-      function DE$primeAnd_the_possibility_to_bring_them_back_again() {
-
-      };
-      DE$primeAnd_the_possibility_to_bring_them_back_again.value = new DE$primeAnd_the_possibility_to_bring_them_back_again();
-      return DE$primeAnd_the_possibility_to_bring_them_back_again;
-  })();
   var DE$primeMusic_must_explode_with_possibilities_2 = (function () {
       function DE$primeMusic_must_explode_with_possibilities_2() {
 
@@ -28116,25 +28083,6 @@ var PS = {};
       DE$primeAnd_that$primes_why_we$primere_building_wavr.value = new DE$primeAnd_that$primes_why_we$primere_building_wavr();
       return DE$primeAnd_that$primes_why_we$primere_building_wavr;
   })();
-  var readJSONTree = {
-      readImpl: function (i) {
-          return Control_Alt.alt(Control_Monad_Except_Trans.altExceptT(Data_List_Types.semigroupNonEmptyList)(Data_Identity.monadIdentity))(Data_Functor.map(Control_Monad_Except_Trans.functorExceptT(Data_Identity.functorIdentity))(DE$primeLeaf.create)(Simple_JSON.readImpl(Simple_JSON.readRecord()(Simple_JSON.readFieldsCons({
-              reflectSymbol: function () {
-                  return "left";
-              }
-          })(readJSONTree)(Simple_JSON.readFieldsCons({
-              reflectSymbol: function () {
-                  return "right";
-              }
-          })(readJSONTree)(Simple_JSON.readFieldsNil)()())()()))(i)))(Control_Bind.bind(Control_Monad_Except_Trans.bindExceptT(Data_Identity.monadIdentity))(Simple_JSON.readImpl(Simple_JSON.readString)(i))(function (e) {
-              var $74 = e === "end";
-              if ($74) {
-                  return Control_Applicative.pure(Control_Monad_Except_Trans.applicativeExceptT(Data_Identity.monadIdentity))(DE$primeEnd.value);
-              };
-              return Control_Monad_Error_Class.throwError(Control_Monad_Except_Trans.monadThrowExceptT(Data_Identity.monadIdentity))(new Data_NonEmpty.NonEmpty(Foreign.ForeignError.create("Could not parse jsonTree: " + e), Data_List_Types.Nil.value));
-          }));
-      }
-  };
   var readJSONH = {
       readImpl: Wavr_JSON.readVariant("DE'Harmonize")(Data_Map_Internal.fromFoldable(Data_Ord.ordString)(Data_Foldable.foldableArray)([ new Data_Tuple.Tuple("H'Add_one", H$primeAdd_one.value), new Data_Tuple.Tuple("H'Add_two", H$primeAdd_two.value), new Data_Tuple.Tuple("H'Add_three", H$primeAdd_three.value), new Data_Tuple.Tuple("H'Add_four", H$primeAdd_four.value) ]))
   };
@@ -28247,18 +28195,6 @@ var PS = {};
                       }
                   })(Simple_JSON.readNumber)(Simple_JSON.readFieldsNil)()())()()))(Simple_JSON.readFieldsNil)()()))(i)));
               };
-              if (v.tag === "DE'The_possibility_to_bring_listeners_to_uncharted_musical_territory") {
-                  return Data_Functor.map(Control_Monad_Except_Trans.functorExceptT(Data_Identity.functorIdentity))(DE$primeThe_possibility_to_bring_listeners_to_uncharted_musical_territory.create)(Data_Functor.map(Control_Monad_Except_Trans.functorExceptT(Data_Identity.functorIdentity))(function (v1) {
-                      return v1.event;
-                  })(Simple_JSON.readImpl(Simple_JSON.readRecord()(Simple_JSON.readFieldsCons({
-                      reflectSymbol: function () {
-                          return "event";
-                      }
-                  })(readJSONTree)(Simple_JSON.readFieldsNil)()()))(i)));
-              };
-              if (v.tag === "DE'And_the_possibility_to_bring_them_back_again") {
-                  return Control_Applicative.pure(Control_Monad_Except_Trans.applicativeExceptT(Data_Identity.monadIdentity))(DE$primeAnd_the_possibility_to_bring_them_back_again.value);
-              };
               if (v.tag === "DE'Music_must_explode_with_possibilities_2") {
                   return Control_Applicative.pure(Control_Monad_Except_Trans.applicativeExceptT(Data_Identity.monadIdentity))(DE$primeMusic_must_explode_with_possibilities_2.value);
               };
@@ -28286,8 +28222,6 @@ var PS = {};
   exports["DE'The_possibility_to_harmonize"] = DE$primeThe_possibility_to_harmonize;
   exports["DE'The_possibility_to_glitch_crackle_and_shimmer"] = DE$primeThe_possibility_to_glitch_crackle_and_shimmer;
   exports["DE'The_possibility_to_shape_it_with_a_gesture"] = DE$primeThe_possibility_to_shape_it_with_a_gesture;
-  exports["DE'The_possibility_to_bring_listeners_to_uncharted_musical_territory"] = DE$primeThe_possibility_to_bring_listeners_to_uncharted_musical_territory;
-  exports["DE'And_the_possibility_to_bring_them_back_again"] = DE$primeAnd_the_possibility_to_bring_them_back_again;
   exports["DE'Music_must_explode_with_possibilities_2"] = DE$primeMusic_must_explode_with_possibilities_2;
   exports["DE'And_that's_why_we're_building_wavr"] = DE$primeAnd_that$primes_why_we$primere_building_wavr;
   exports["readJSONDE"] = readJSONDE;
@@ -28526,6 +28460,7 @@ var PS = {};
   exports["addNewSounds"] = addNewSounds;
 })(PS);
 (function($PS) {
+  // Generated by purs version 0.14.4
   "use strict";
   $PS["Wavr.ChangeBeat"] = $PS["Wavr.ChangeBeat"] || {};
   var exports = $PS["Wavr.ChangeBeat"];
@@ -29016,18 +28951,6 @@ var PS = {};
                   preload: preload
               });
           };
-          if (v.value.value0.value instanceof Wavr_DemoEvent["DE'The_possibility_to_bring_listeners_to_uncharted_musical_territory"]) {
-              return WAGS_Lib_Tidal_Tidal.make()()(1.0)({
-                  earth: WAGS_Lib_Tidal_Tidal.s(WAGS_Lib_Tidal_Tidal.sString)("hh "),
-                  preload: preload
-              });
-          };
-          if (v.value.value0.value instanceof Wavr_DemoEvent["DE'And_the_possibility_to_bring_them_back_again"]) {
-              return WAGS_Lib_Tidal_Tidal.make()()(1.0)({
-                  earth: WAGS_Lib_Tidal_Tidal.s(WAGS_Lib_Tidal_Tidal.sString)("bassdm "),
-                  preload: preload
-              });
-          };
           if (v.value.value0.value instanceof Wavr_DemoEvent["DE'Music_must_explode_with_possibilities_2"]) {
               return WAGS_Lib_Tidal_Tidal.make()()(1.0)({
                   earth: WAGS_Lib_Tidal_Tidal.s(WAGS_Lib_Tidal_Tidal.sString)("tabla "),
@@ -29040,9 +28963,9 @@ var PS = {};
                   preload: preload
               });
           };
-          throw new Error("Failed pattern match at Wavr.Example (line 26, column 25 - line 38, column 84): " + [ v.value.value0.value.constructor.name ]);
+          throw new Error("Failed pattern match at Wavr.Example (line 26, column 25 - line 36, column 84): " + [ v.value.value0.value.constructor.name ]);
       };
-      throw new Error("Failed pattern match at Wavr.Example (line 24, column 21 - line 38, column 84): " + [ v.value.constructor.name ]);
+      throw new Error("Failed pattern match at Wavr.Example (line 24, column 21 - line 36, column 84): " + [ v.value.constructor.name ]);
   };
   exports["wag"] = wag;
 })(PS);
