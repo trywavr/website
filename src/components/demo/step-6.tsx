@@ -10,6 +10,10 @@ const MotionGlitch = styled(motion.div, {
 	backgroundColor: '$violet8',
 	opacity: 0.25,
 	boxShadow: '0 0 16px 0 $colors$violetA9',
+	webKitTouchCallout: 'none',
+	webkitTextSizeAdjust: 'none',
+	webKitUserSelect: 'none',
+	userSelect: 'none',
 });
 
 export const Step6 = ({
@@ -18,7 +22,13 @@ export const Step6 = ({
 	demoInitialized: DemoInitialized;
 }) => {
 	return (
-		<Flex justify="center" align="center" css={{ margin: 128 }}>
+		<Flex
+			justify="center"
+			align="center"
+			css={{
+				margin: 128,
+			}}
+		>
 			<MotionGlitch
 				whileTap={{
 					scale: 4,
