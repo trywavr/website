@@ -3,7 +3,6 @@
   [ "aff"
   , "aff-promise"
   , "behaviors"
-  , "control"
   , "datetime"
   , "effect"
   , "either"

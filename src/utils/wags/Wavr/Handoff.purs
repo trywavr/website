@@ -16,7 +16,7 @@ import Effect.Class (liftEffect)
 import Effect.Ref as Ref
 import FRP.Event (EventIO, create, subscribe)
 import Foreign (Foreign)
-import WAGS.Interpret (close, context, contextResume, contextState, defaultFFIAudio, makeUnitCache)
+import WAGS.Interpret (close, constant0Hack, context, contextResume, contextState, defaultFFIAudio, makeUnitCache)
 import WAGS.Lib.Learn (FullSceneBuilder(..))
 import WAGS.Lib.Tidal.Engine (engine)
 import WAGS.Lib.Tidal.Tidal (openFuture)
@@ -37,12 +37,11 @@ type DemoInitialized =
 
 type DemoStarted = { audioCtx :: AudioContext, unsubscribe :: Effect Unit }
 
-foreign import primePump :: AudioContext -> Effect Unit
-
 initializeAndStart :: (String -> Effect Unit) -> Effect (Promise { demoInitialized :: DemoInitialized, demoStarted :: DemoStarted })
 initializeAndStart logger = do
   ctx <- liftEffect context
-  liftEffect $ primePump ctx
+  -- we void the canceler as we don't care about some 0.0s spewing
+  _ <- liftEffect $ constant0Hack ctx
   fromAff do
     cstate <- liftEffect $ contextState ctx
     when (cstate /= "running") (toAffE $ contextResume ctx)
