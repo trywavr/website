@@ -7,6 +7,8 @@ import {
 	Step2,
 	Step3,
 	Step4,
+	Step5,
+	Step6,
 	Step7,
 } from '@components/demo';
 // @ts-expect-error TODO: fix types
@@ -192,16 +194,16 @@ const Demo = () => {
 						<Step4 demoInitialized={demoInitialized} />
 					</>
 				)}
-				{step === 5 && (
+				{step === 5 && demoInitialized && (
 					<>
 						<AnimatedHeading text="The possibility to introduce harmony..." />
-						{/* <Step5 /> */}
+						<Step5 demoInitialized={demoInitialized} />
 					</>
 				)}
-				{step === 6 && (
+				{step === 6 && demoInitialized && (
 					<>
 						<AnimatedHeading text="The possibility to glitch, crackle and shimmer..." />
-						{/* <Step6 /> */}
+						<Step6 demoInitialized={demoInitialized} />
 					</>
 				)}
 				{demoInitialized && step === 7 && (
@@ -211,18 +213,6 @@ const Demo = () => {
 					</>
 				)}
 				{step === 8 && (
-					<>
-						<AnimatedHeading text="The possibility to bring listeners to uncharted musical territory..." />
-						{/* <Step8 /> */}
-					</>
-				)}
-				{step === 9 && (
-					<>
-						<AnimatedHeading text="And the possibility to bring them back again." />
-						{/* <Step9 /> */}
-					</>
-				)}
-				{step === 10 && (
 					<>
 						<AnimatedHeading text="Music must explode with possibilities, and that's why we're building wavr." />
 					</>
@@ -244,7 +234,7 @@ const Demo = () => {
 						<div style={{ width: 16 }} />
 					</>
 				)}
-				{step < 10 && step > 0 && (
+				{step < 8 && step > 0 && (
 					<Button
 						size={2}
 						onClick={() => {

@@ -1,37 +1,11 @@
 import React from 'react';
 import { SpeakerLoudIcon, SpeakerOffIcon } from '@radix-ui/react-icons';
-import { Text } from '../text';
-import { styled } from '@stitches/react';
+import { Card as InstrumentCard, Text } from '@components/index';
 import { motion } from 'framer-motion';
 // @ts-expect-error TODO fix types
 import { send } from '../../utils/wags/handoff';
 
 const instruments = ['Happiness', 'Sadness', 'Confusion', 'Regret'];
-
-const InstrumentCard = styled(motion.li, {
-	display: 'flex',
-	alignItems: 'center',
-	justifyContent: 'space-between',
-	borderRadius: '$2',
-	padding: '$4',
-	marginBottom: '16px',
-	variants: {
-		toggle: {
-			on: {
-				border: '1px solid $mauve9',
-				color: '$mauve12',
-				boxShadow: '0 0 16px 0 $colors$violetA9',
-			},
-			off: {
-				border: '1px solid $mauve6',
-				color: '$mauve11',
-			},
-		},
-	},
-	defaultVariants: {
-		toggle: 'off',
-	},
-});
 
 const Instrument = ({
 	instrument,
@@ -66,7 +40,7 @@ const Instrument = ({
 					two: instrument === 'Sadness' ? !toggle.two : toggle.two,
 					three: instrument === 'Confusion' ? !toggle.three : toggle.three,
 					four: instrument === 'Regret' ? !toggle.four : toggle.four,
-				}
+				};
 				send(demoInitialized)({
 					tag: "DE'The_possibility_to_add_new_sounds",
 					event: newToggle,

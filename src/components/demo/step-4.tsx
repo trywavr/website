@@ -1,42 +1,8 @@
 import React, { ReactNode, MouseEventHandler, useState } from 'react';
-import { Grid } from '@components/index';
-import { styled } from '@stitches/react';
-import {
-	Beat1,
-	Beat2,
-	Beat3,
-	Beat4,
-	Beat5,
-	Beat6,
-} from '@components/icons';
-import { motion } from 'framer-motion';
+import { Card, Grid } from '@components/index';
+import { Beat1, Beat2, Beat3, Beat4, Beat5, Beat6 } from '@components/icons';
 // @ts-expect-error TODO fix types
 import { send } from '../../utils/wags/handoff';
-
-const StyledDrum = styled(motion.div, {
-	display: 'flex',
-	alignItems: 'center',
-	justifyContent: 'flex-start',
-	height: 64,
-	width: '100%',
-	borderRadius: '$2',
-	variants: {
-		toggle: {
-			on: {
-				border: '1px solid $mauve9',
-				color: '$mauve12',
-				boxShadow: '0 0 16px 0 $colors$violetA9',
-			},
-			off: {
-				border: '1px solid $mauve6',
-				color: '$mauve11',
-			},
-		},
-	},
-	defaultVariants: {
-		toggle: 'off',
-	},
-});
 
 const Drum = ({
 	children,
@@ -58,7 +24,7 @@ const Drum = ({
 		},
 	};
 	return (
-		<StyledDrum
+		<Card
 			onClick={onClick}
 			toggle={isActive ? 'on' : 'off'}
 			variants={item}
@@ -66,19 +32,13 @@ const Drum = ({
 			animate="show"
 		>
 			{children}
-		</StyledDrum>
+		</Card>
 	);
 };
 
-type Beat =
-	| "BC'C1"
-	| "BC'C2"
-	| "BC'C3"
-	| "BC'C4"
-	| "BC'C5"
-	| "BC'C6";
+type Beat = "BC'C1" | "BC'C2" | "BC'C3" | "BC'C4" | "BC'C5" | "BC'C6";
 
-	export const Step4 = ({
+export const Step4 = ({
 	demoInitialized,
 }: {
 	demoInitialized: DemoInitialized;
