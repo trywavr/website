@@ -77,6 +77,20 @@ data DemoEvent
   | DE'Music_must_explode_with_possibilities_2
   | DE'And_that's_why_we're_building_wavr
 
+ceq :: DemoEvent -> DemoEvent -> Boolean
+ceq = case _, _ of
+  DE'Music_was_never_meant_to_be_static_or_fixed, DE'Music_was_never_meant_to_be_static_or_fixed -> true
+  DE'Music_must_explode_with_possibilities, DE'Music_must_explode_with_possibilities -> true
+  DE'The_possibility_to_add_new_sounds _, DE'The_possibility_to_add_new_sounds _ -> true
+  DE'The_possibility_to_take_a_sound_in_a_new_direction _, DE'The_possibility_to_take_a_sound_in_a_new_direction _ -> true
+  DE'The_possibility_to_change_a_beat _, DE'The_possibility_to_change_a_beat _ -> true
+  DE'The_possibility_to_harmonize _, DE'The_possibility_to_harmonize _ -> true
+  DE'The_possibility_to_glitch_crackle_and_shimmer _, DE'The_possibility_to_glitch_crackle_and_shimmer _ -> true
+  DE'The_possibility_to_shape_it_with_a_gesture _, DE'The_possibility_to_shape_it_with_a_gesture _ -> true
+  DE'Music_must_explode_with_possibilities_2, DE'Music_must_explode_with_possibilities_2 -> true
+  DE'And_that's_why_we're_building_wavr, DE'And_that's_why_we're_building_wavr -> true
+  _, _ -> false
+
 type WithTag = { tag :: String }
 
 type Prs a = Foreign -> F { event :: a }

@@ -12,7 +12,9 @@ import Data.Lens.Record (prop)
 import Data.List (List(..), foldl, (:))
 import Data.List.NonEmpty (NonEmptyList(..))
 import Data.List.NonEmpty as NEL
-import Data.Maybe (Maybe(..))
+import Data.Maybe (Maybe(..), fromMaybe)
+import Data.Monoid (guard)
+import Data.Monoid.Additive (Additive(..))
 import Data.Monoid.Endo (Endo(..))
 import Data.Newtype (unwrap)
 import Data.NonEmpty ((:|))
@@ -28,8 +30,8 @@ import Foreign (Foreign)
 import Simple.JSON as JSON
 import Type.Proxy (Proxy(..))
 import WAGS.Lib.Tidal.Types (DroneNote(..), NextCycle(..), Sample, Voice(..))
-import Wavr.DemoEvent (DE'Harmonize, DemoEvent(..))
-import Wavr.DemoTypes (Interactivity(..), RawInteractivity)
+import Wavr.DemoEvent (DE'Harmonize, DemoEvent(..), ceq)
+import Wavr.DemoTypes (Interactivity(..), RawInteractivity, RawInteractivity')
 
 r2b :: Ref.Ref ~> Behavior
 r2b r = behavior \e -> Event.makeEvent \f -> Event.subscribe e \v -> Ref.read r >>= f <<< v
@@ -74,15 +76,31 @@ toCrackle fktr il = il # go >>> NEL.fromList >>> case _ of
         fa
     ).acc
 
+sst :: RawInteractivity' -> RawInteractivity -> Maybe (Additive Number)
+sst ri =
+  let
+    rv = Just (Additive ri.time)
+  in
+    case _ of
+      Nil -> rv
+      (a : _) -> guard (not $ ceq ri.value a.value) rv
+
 de2list
   :: Event.Event DemoEvent
   -> Event.Event Interactivity
 de2list i = mapped1
   where
   stamped = map (over (prop (Proxy :: _ "time")) (unInstant >>> unwrap)) (withTime i)
-  folded = Event.fold Cons stamped Nil
-  mapped0 = map (bindToN 20) folded
-  mapped1 = Interactivity <<< ({ raw: _, harmony: _, crackle: _ } <$> identity <*> toHarm <*> toCrackle 0.1) <$> mapped0
+  folded = Event.fold
+    ( \a b ->
+        { sectionStartsAt: fromMaybe b.sectionStartsAt (sst a b.raw)
+        , raw: a : b.raw
+        }
+    )
+    stamped
+    { sectionStartsAt: Additive 0.0, raw: Nil }
+  mapped1 = folded <#> \{ raw, sectionStartsAt } ->
+    Interactivity { raw, harmony: toHarm raw, crackle: toCrackle 0.1 raw, sectionStartsAt }
 
 easingAlgorithm :: Cofree ((->) Int) Int
 easingAlgorithm =
