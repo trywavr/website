@@ -25,6 +25,7 @@ import WAGS.Lib.Tidal.Util (r2b, doDownloads)
 import WAGS.Run (run, Run)
 import WAGS.WebAPI (AudioContext)
 import Wavr.Example as Example
+import Wavr.Harmonize (harmonize)
 import Wavr.LoFi (loFi)
 import Wavr.MusicWasNeverMeantToBeStaticOrFixed (musicWasNeverMeantToBeStaticOrFixed)
 import Wavr.NewDirection (newDirection)
@@ -58,6 +59,7 @@ initialize_ ctx = do
     [ loFi { isFresh: true, value: Nil }
     , musicWasNeverMeantToBeStaticOrFixed { isFresh: true, value: Nil }
     , newDirection
+    , harmonize
     ]
   pure { bufCache, interactivity }
 
