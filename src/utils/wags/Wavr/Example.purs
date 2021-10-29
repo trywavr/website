@@ -12,6 +12,7 @@ import Wavr.Crackle (crackle)
 import Wavr.DemoEvent (DemoEvent(..))
 import Wavr.DemoTypes (Interactivity(..))
 import Wavr.Harmonize (harmonize)
+import Wavr.InfiniteGest (infiniteGest)
 import Wavr.MusicWasNeverMeantToBeStaticOrFixed (musicWasNeverMeantToBeStaticOrFixed)
 import Wavr.NewDirection (newDirection)
 
@@ -33,6 +34,6 @@ wag ifi@{ value: Interactivity { raw } } = case raw of
     DE'The_possibility_to_change_a_beat cb -> changeBeat cb
     DE'The_possibility_to_harmonize _ -> harmonize
     DE'The_possibility_to_glitch_crackle_and_shimmer _ -> crackle
-    DE'The_possibility_to_shape_it_with_a_gesture _ -> make 1.0 { earth: s $ "tabla ", preload }
-    DE'Music_must_explode_with_possibilities_2 -> make 1.0 { earth: s $ "tabla ", preload }
-    DE'And_that's_why_we're_building_wavr -> make 1.0 { earth: s $ "hh ", preload }
+    DE'The_possibility_to_shape_it_with_a_gesture _ -> infiniteGest
+    DE'Music_must_explode_with_possibilities_2 -> musicWasNeverMeantToBeStaticOrFixed ifi
+    DE'And_that's_why_we're_building_wavr -> musicWasNeverMeantToBeStaticOrFixed ifi
