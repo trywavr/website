@@ -5,8 +5,8 @@ import Prelude
 import Data.Lens (_Just, set)
 import Data.List (List(..), (:))
 import Data.Maybe (Maybe)
+import Data.Monoid.Endo (Endo(..))
 import Data.Newtype (unwrap)
-import Data.NonEmpty ((:|))
 import Data.Profunctor (lcmap)
 import Data.Set (Set)
 import Data.Set as Set
@@ -14,12 +14,12 @@ import Data.Tuple.Nested ((/\))
 import Data.Vec ((+>))
 import Data.Vec as V
 import Math ((%))
-import WAGS.Create.Optionals (gain, highpass, periodicOsc, sinOsc)
+import WAGS.Create.Optionals (gain, highpass)
 import WAGS.Graph.AudioUnit (OnOff(..))
 import WAGS.Graph.AudioUnit as CTOR
 import WAGS.Graph.Parameter (AudioParameter)
 import WAGS.Lib.Learn.Pitch (midiToCps)
-import WAGS.Lib.Piecewise (MakePiecewise, APFofT, makeLoopingPiecewise)
+import WAGS.Lib.Piecewise (APFofT)
 import WAGS.Lib.Tidal.Cycle (Cycle)
 import WAGS.Lib.Tidal.Download (sounds)
 import WAGS.Lib.Tidal.FX (fx, goodbye, hello)
@@ -27,7 +27,7 @@ import WAGS.Lib.Tidal.Tidal (lnr, lnv, lvt, make, onTag, parse, s)
 import WAGS.Lib.Tidal.Types (Note, TheFuture, IsFresh)
 import Wavr.CracklePW as CPW
 import Wavr.DemoEvent (DE'Add_new_sounds, DE'Harmonize(..), DemoEvent(..))
-import Wavr.DemoTypes (Interactivity)
+import Wavr.DemoTypes (Interactivity(..))
 
 m2 = 4.0 * 1.0 * 60.0 / 111.0 :: Number
 
@@ -37,7 +37,7 @@ nparz :: String -> Cycle (Maybe (Note Interactivity))
 nparz = parse
 
 unevent :: IsFresh Interactivity -> Set DE'Harmonize
-unevent = Set.fromFoldable <<< go <<< _.value
+unevent = Set.fromFoldable <<< go <<< _.raw <<< unwrap <<< _.value
   where
   go ({ value: DE'The_possibility_to_harmonize h } : b) = h : go b
   go _ = Nil
@@ -97,20 +97,32 @@ crackle = make (m2 * 2.0)
   , fire:
       map
         ( set lvt
-            ( lcmap unwrap \{ clockTime } ->
-                fx
-                  ( goodbye $ gain 1.0
-                      { gfis2: gain (ipw CPW.pw'fis2 clockTime) { fis2: cpo ((1.0 +> V.empty) /\ (0.0 +> V.empty)) On fis2 }
-                      , gfis3: gain (ipw CPW.pw'fis3 clockTime) { fis3: cpo ((1.0 +> V.empty) /\ (0.0 +> V.empty)) On fis3 }
-                      , gcis4: gain (ipw CPW.pw'cis4 clockTime) { cis4: cpo ((1.0 +> V.empty) /\ (0.0 +> V.empty)) On cis4 }
-                      , gfis4: gain (ipw CPW.pw'fis4 clockTime) { fis4: cpo ((1.0 +> V.empty) /\ (0.0 +> V.empty)) On fis4 }
-                      , ga4: gain (ipw CPW.pw'a4 clockTime) { a4: cpo ((1.0 +> V.empty) /\ (0.0 +> V.empty)) On a4 }
-                      , gcis5: gain (ipw CPW.pw'cis5 clockTime) { cis5: cpo ((1.0 +> V.empty) /\ (0.0 +> V.empty)) On cis5 }
-                      , ge5: gain (ipw CPW.pw'e5 clockTime) { e5: cpo ((1.0 +> V.empty) /\ (0.0 +> V.empty)) On e5 }
-                      , ggis5: gain (ipw CPW.pw'gis5 clockTime) { gis5: cpo ((1.0 +> V.empty) /\ (0.0 +> V.empty)) On gis5 }
-                      , passthrough: hello
-                      }
-                  )
+            ( lcmap unwrap \{ clockTime, event: { value: Interactivity { crackle: Endo f } } } ->
+                let
+                  cknow = f clockTime
+                  gateE gtd = pure $ max 0.0 (cknow - gtd)
+                in
+                  fx
+                    ( goodbye $ gain 1.0
+                        { gfis2: gain (ipw CPW.pw'fis2 clockTime * gateE 1.0)
+                            { fis2: cpo ((1.0 +> V.empty) /\ (0.0 +> V.empty)) On fis2 }
+                        , gfis3: gain (ipw CPW.pw'fis3 clockTime * gateE 0.9)
+                            { fis3: cpo ((1.0 +> V.empty) /\ (0.0 +> V.empty)) On fis3 }
+                        , gcis4: gain (ipw CPW.pw'cis4 clockTime * gateE 0.6)
+                            { cis4: cpo ((1.0 +> V.empty) /\ (0.0 +> V.empty)) On cis4 }
+                        , gfis4: gain (ipw CPW.pw'fis4 clockTime * gateE 0.0)
+                            { fis4: cpo ((1.0 +> V.empty) /\ (0.0 +> V.empty)) On fis4 }
+                        , ga4: gain (ipw CPW.pw'a4 clockTime * gateE 0.5)
+                            { a4: cpo ((1.0 +> V.empty) /\ (0.0 +> V.empty)) On a4 }
+                        , gcis5: gain (ipw CPW.pw'cis5 clockTime * gateE 0.3)
+                            { cis5: cpo ((1.0 +> V.empty) /\ (0.0 +> V.empty)) On cis5 }
+                        , ge5: gain (ipw CPW.pw'e5 clockTime * gateE 0.4)
+                            { e5: cpo ((1.0 +> V.empty) /\ (0.0 +> V.empty)) On e5 }
+                        , ggis5: gain (ipw CPW.pw'gis5 clockTime * gateE 0.9)
+                            { gis5: cpo ((1.0 +> V.empty) /\ (0.0 +> V.empty)) On gis5 }
+                        , passthrough: hello
+                        }
+                    )
             )
         ) $ s
         $ onTag "h0"

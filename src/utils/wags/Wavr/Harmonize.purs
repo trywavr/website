@@ -3,7 +3,6 @@ module Wavr.Harmonize where
 import Prelude
 
 import Data.Lens (_Just, set)
-import Data.List (List(..), (:))
 import Data.Maybe (Maybe)
 import Data.Newtype (unwrap)
 import Data.Profunctor (lcmap)
@@ -16,7 +15,7 @@ import WAGS.Lib.Tidal.Download (sounds)
 import WAGS.Lib.Tidal.FX (fx, goodbye, hello)
 import WAGS.Lib.Tidal.Tidal (lnr, lnv, lvt, make, onTag, parse, s)
 import WAGS.Lib.Tidal.Types (Note, TheFuture, IsFresh)
-import Wavr.DemoEvent (DE'Add_new_sounds, DE'Harmonize(..), DemoEvent(..))
+import Wavr.DemoEvent (DE'Add_new_sounds, DE'Harmonize(..))
 import Wavr.DemoTypes (Interactivity)
 
 m2 = 4.0 * 1.0 * 60.0 / 111.0 :: Number
@@ -27,10 +26,7 @@ nparz :: String -> Cycle (Maybe (Note Interactivity))
 nparz = parse
 
 unevent :: IsFresh Interactivity -> Set DE'Harmonize
-unevent = Set.fromFoldable <<< go <<< _.value
-  where
-  go ({ value: DE'The_possibility_to_harmonize h } : b) = h : go b
-  go _ = Nil
+unevent = _.harmony <<< unwrap <<< _.value
 
 voly :: forall a. Set a -> Number
 voly = Set.size >>> case _ of

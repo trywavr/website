@@ -6,10 +6,17 @@ import Control.Comonad.Cofree (Cofree, (:<))
 import Control.Monad.Except (runExcept)
 import Data.DateTime.Instant (unInstant)
 import Data.Either (Either(..))
+import Data.Function (on)
 import Data.Lens (over)
 import Data.Lens.Record (prop)
-import Data.List (List(..), (:))
+import Data.List (List(..), foldl, (:))
+import Data.List.NonEmpty (NonEmptyList(..))
+import Data.List.NonEmpty as NEL
+import Data.Maybe (Maybe(..))
+import Data.Monoid.Endo (Endo(..))
 import Data.Newtype (unwrap)
+import Data.NonEmpty ((:|))
+import Data.Set (Set)
 import Data.Set as Set
 import Effect (Effect)
 import Effect.Ref as Ref
@@ -20,8 +27,9 @@ import FRP.Event.Time (withTime)
 import Foreign (Foreign)
 import Simple.JSON as JSON
 import Type.Proxy (Proxy(..))
-import Wavr.DemoEvent (DemoEvent)
 import WAGS.Lib.Tidal.Types (DroneNote(..), NextCycle(..), Sample, Voice(..))
+import Wavr.DemoEvent (DE'Harmonize, DemoEvent(..))
+import Wavr.DemoTypes (Interactivity(..), RawInteractivity)
 
 r2b :: Ref.Ref ~> Behavior
 r2b r = behavior \e -> Event.makeEvent \f -> Event.subscribe e \v -> Ref.read r >>= f <<< v
@@ -33,14 +41,48 @@ bindToN n
       Nil -> Nil
       (a : b) -> a : bindToN (n - 1) b
 
+toHarm :: RawInteractivity -> Set DE'Harmonize
+toHarm = Set.fromFoldable <<< go
+  where
+  go ({ value: DE'The_possibility_to_harmonize h } : b) = h : go b
+  go _ = Nil
+
+b01 :: Number -> Number
+b01 n = if n < 0.0 then 0.0 else if n > 1.0 then 1.0 else n
+
+toCrackle :: Number -> RawInteractivity -> Endo (->) Number
+toCrackle fktr il = il # go >>> NEL.fromList >>> case _ of
+  Nothing -> Endo $ \_ -> 0.0
+  Just l@(NonEmptyList (hd :| _)) -> Endo $
+    let
+      vv = val $ sorted l
+    in
+      \tm -> b01 ((max 0.0 (tm - hd.time)) * fktr * (if hd.oo then 1.0 else 0.0) + vv)
+  where
+  go ({ value: DE'The_possibility_to_glitch_crackle_and_shimmer oo, time } : b) = { time, oo } : go b
+  go _ = Nil
+  sorted = NEL.sortBy (compare `on` _.time)
+  val (NonEmptyList (b :| fa)) =
+    ( foldl
+        ( \{ v, acc } too ->
+            { v: too
+            , acc:
+                b01 $ acc + ((too.time - v.time) * fktr * (if too.oo then 1.0 else 0.0))
+            }
+        )
+        { v: b, acc: 0.0 }
+        fa
+    ).acc
+
 de2list
   :: Event.Event DemoEvent
-  -> Event.Event (List { time :: Number, value :: DemoEvent })
-de2list i = mapped
+  -> Event.Event Interactivity
+de2list i = mapped1
   where
   stamped = map (over (prop (Proxy :: _ "time")) (unInstant >>> unwrap)) (withTime i)
   folded = Event.fold Cons stamped Nil
-  mapped = map (bindToN 20) folded
+  mapped0 = map (bindToN 20) folded
+  mapped1 = Interactivity <<< ({ raw: _, harmony: _, crackle: _ } <$> identity <*> toHarm <*> toCrackle 0.1) <$> mapped0
 
 easingAlgorithm :: Cofree ((->) Int) Int
 easingAlgorithm =

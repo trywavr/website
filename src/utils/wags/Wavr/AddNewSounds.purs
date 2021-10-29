@@ -2,7 +2,7 @@ module Wavr.AddNewSounds where
 
 import Prelude
 
-import Data.Lens (_Just, set, traversed)
+import Data.Lens (_Just, set)
 import Data.List ((:))
 import Data.Maybe (Maybe)
 import Data.Newtype (unwrap)
@@ -10,12 +10,12 @@ import Data.Profunctor (lcmap)
 import Math ((%))
 import WAGS.Create.Optionals (highpass, pan)
 import WAGS.Lib.Tidal.Cycle (Cycle)
-import Wavr.DemoEvent (DE'Add_new_sounds, DemoEvent(..))
-import Wavr.DemoTypes (Interactivity)
 import WAGS.Lib.Tidal.FX (fx, goodbye, hello)
 import WAGS.Lib.Tidal.Tidal (lnr, lnv, lvt, make, onTag, parse, s)
 import WAGS.Lib.Tidal.Types (Note, TheFuture, IsFresh)
 import Wags.Learn.Oscillator (lfo)
+import Wavr.DemoEvent (DE'Add_new_sounds, DemoEvent(..))
+import Wavr.DemoTypes (Interactivity(..))
 
 m2 = 4.0 * 1.0 * 60.0 / 111.0 :: Number
 
@@ -25,9 +25,19 @@ nparz :: String -> Cycle (Maybe (Note Interactivity))
 nparz = parse
 
 unevent :: IsFresh Interactivity -> DE'Add_new_sounds
-unevent { value: ({ value: DE'The_possibility_to_add_new_sounds ottf } : _) } = ottf
+unevent { value: Interactivity { raw: ({ value: DE'The_possibility_to_add_new_sounds ottf } : _) } } = ottf
 unevent _ = { one: false, two: false, three: false, four: false }
 
+dsk
+  :: ( { four :: Boolean
+       , one :: Boolean
+       , three :: Boolean
+       , two :: Boolean
+       }
+       -> Boolean
+     )
+  -> Maybe (Note Interactivity)
+  -> Maybe (Note Interactivity)
 dsk fue = set (_Just <<< lnv) (lcmap unwrap \{ event } -> let ue = unevent event in (if fue ue then 1.0 else 0.0))
 
 addNewSounds :: TheFuture Interactivity

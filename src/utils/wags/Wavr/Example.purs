@@ -10,7 +10,7 @@ import Wavr.AddNewSounds (addNewSounds)
 import Wavr.ChangeBeat (changeBeat)
 import Wavr.Crackle (crackle)
 import Wavr.DemoEvent (DemoEvent(..))
-import Wavr.DemoTypes (Interactivity)
+import Wavr.DemoTypes (Interactivity(..))
 import Wavr.Harmonize (harmonize)
 import Wavr.MusicWasNeverMeantToBeStaticOrFixed (musicWasNeverMeantToBeStaticOrFixed)
 import Wavr.NewDirection (newDirection)
@@ -23,7 +23,7 @@ preload :: Array Sample
 preload = [ S.bassdm_0__Sample, S.tabla_0__Sample, S.hh_0__Sample ]
 
 wag :: IsFresh Interactivity -> TheFuture Interactivity
-wag ifi@{ value } = case value of
+wag ifi@{ value: Interactivity { raw } } = case raw of
   Nil -> make 1.0 { earth: s $ " ", preload }
   ({ value: v } : _) -> case v of
     DE'Music_was_never_meant_to_be_static_or_fixed -> musicWasNeverMeantToBeStaticOrFixed ifi

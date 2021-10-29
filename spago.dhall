@@ -22,6 +22,7 @@
   , "psci-support"
   , "refs"
   , "simple-json"
+  , "sized-vectors"
   , "transformers"
   , "tuples"
   , "wags"

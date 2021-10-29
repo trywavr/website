@@ -4,7 +4,7 @@ import Prelude
 
 import Control.Promise (Promise, fromAff, toAffE)
 import Data.Either (Either(..))
-import Data.List (List(..), fold)
+import Data.List (fold)
 import Data.Map (Map)
 import Data.Map as Map
 import Data.Traversable (traverse)
@@ -56,8 +56,8 @@ initialize_ ctx = do
   interactivity <- liftEffect create
   -- todo: some of these may not be necessary
   map fold $ traverse (doDownloads ctx bufCache (const $ pure unit))
-    [ loFi { isFresh: true, value: Nil }
-    , musicWasNeverMeantToBeStaticOrFixed { isFresh: true, value: Nil }
+    [ loFi { isFresh: true, value: mempty }
+    , musicWasNeverMeantToBeStaticOrFixed { isFresh: true, value: mempty }
     , newDirection
     , harmonize
     ]

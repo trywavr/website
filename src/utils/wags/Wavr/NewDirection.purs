@@ -2,7 +2,7 @@ module Wavr.NewDirection where
 
 import Prelude
 
-import Data.Lens (_Just, set, traversed)
+import Data.Lens (_Just, set)
 import Data.List ((:))
 import Data.Maybe (Maybe)
 import Data.Newtype (unwrap)
@@ -10,12 +10,12 @@ import Data.Profunctor (lcmap)
 import Math ((%))
 import WAGS.Create.Optionals (highpass, pan)
 import WAGS.Lib.Tidal.Cycle (Cycle)
-import Wavr.DemoEvent (DE'Add_new_sounds, DE'New_dir_choice(..), DemoEvent(..), NewDir)
-import Wavr.DemoTypes (Interactivity)
 import WAGS.Lib.Tidal.FX (fx, goodbye, hello)
 import WAGS.Lib.Tidal.Tidal (lnr, lnv, lvt, make, onTag, parse, s)
 import WAGS.Lib.Tidal.Types (Note, TheFuture, IsFresh)
 import Wags.Learn.Oscillator (lfo)
+import Wavr.DemoEvent (DE'Add_new_sounds, DE'New_dir_choice(..), DemoEvent(..), NewDir)
+import Wavr.DemoTypes (Interactivity(..))
 
 m2 = 4.0 * 1.0 * 60.0 / 111.0 :: Number
 
@@ -25,7 +25,7 @@ nparz :: String -> Cycle (Maybe (Note Interactivity))
 nparz = parse
 
 unevent :: IsFresh Interactivity -> NewDir
-unevent { value: ({ value: DE'The_possibility_to_take_a_sound_in_a_new_direction ndc } : _) } = ndc
+unevent { value: Interactivity { raw: ({ value: DE'The_possibility_to_take_a_sound_in_a_new_direction ndc } : _) } } = ndc
 unevent _ =
   { check: false
   , choice: NDC'C1
