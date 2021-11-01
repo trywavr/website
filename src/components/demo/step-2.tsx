@@ -77,9 +77,9 @@ export const Step2 = ({
 	};
 	const [toggle, setToggle] = React.useState({
 		one: true,
-		two: false,
-		three: false,
-		four: false,
+		two: true,
+		three: true,
+		four: true,
 	});
 
 	return (

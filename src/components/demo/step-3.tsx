@@ -53,7 +53,8 @@ export const Step3 = ({
 					size="2"
 				/>
 			</div>
-			<RadioGroup
+			{/** // not adding much. comment out for now, add back later if it makes sense.
+			 * <RadioGroup
 				onValueChange={v =>
 					updateState({
 						...step3State,
@@ -67,6 +68,8 @@ export const Step3 = ({
 				<Radio value="happy" size="2" />
 				<Radio value="halloween" size="2" />
 			</RadioGroup>
+			 * 
+			 */}
 		</>
 	);
 };

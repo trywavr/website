@@ -50,7 +50,7 @@ newDirection = make (m2 * 2.0)
               )
           )
       $ onTag "nnc" (set (_Just <<< lnv) (lcmap unwrap \{ event } -> let ue = unevent event in if ue.check then 0.6 else 0.0))
-      $ nparz "tink:1;tk tink:2;tk tink:3;tk tink:0;tk tink:4;tk tink:2;tk tink:3;tk tink:1;tk tink:2;k tink:0;tk tink:3;tk , [newnotes;nn newnotes:1;nn newnotes:2;nn newnotes:3;nn ~] [newnotes;nn newnotes:1;nn newnotes:2;nn ~ newnotes:4;nn newnotes:5;nn] , ~ newnotes:6;nnc ~ newnotes:7;nnc ~ newnotes:8;nnc ~ newnotes:9;nnc ~ newnotes:10;nnc ~ newnotes:11;nnc ~ newnotes:12;nnc ~ newnotes:13;nnc ~ newnotes:9;nnc"
+      $ nparz "tink:1;tk tink:2;tk tink:3;tk tink:0;tk tink:4;tk tink:2;tk tink:3;tk tink:1;tk tink:2;k tink:0;tk tink:3;tk , [newnotes;nn newnotes:1;nn newnotes:2;nn newnotes:3;nn ~] [newnotes;nn newnotes:1;nn newnotes:2;nn ~ newnotes:4;nn newnotes:5;nn] , ~ newnotes:6;nnc ~ newnotes:7;nnc ~ newnotes:8;nnc ~ newnotes:9;nnc ~ newnotes:10;nnc ~ newnotes:11;nnc ~ newnotes:12;nnc ~ newnotes:13;nnc ~ newnotes:9;nnc ~ newnotes:6;nnc ~ newnotes:7;nnc ~ newnotes:8;nnc ~ newnotes:9;nnc ~ newnotes:10;nnc ~ newnotes:11;nnc ~ newnotes:12;nnc ~ newnotes:13;nnc ~ newnotes:9;nnc"
   , wind:
       map
         ( set lvt
@@ -65,8 +65,9 @@ newDirection = make (m2 * 2.0)
         ) $ s $ onTag "ph" (set (_Just <<< lnr) $ lcmap unwrap \{ normalizedSampleTime: t } -> min 1.2 (1.0 + t * 0.3))
         $ onTag "print" (set (_Just <<< lnv) $ lcmap unwrap \{ normalizedSampleTime: _ } -> 0.2)
         $ onTag "pk" (set (_Just <<< lnr) $ lcmap unwrap \{ normalizedSampleTime: t } -> 0.7 - t * 0.2)
+        $ onTag "kt0" (set (_Just <<< lnv) $ lcmap unwrap \{ normalizedSampleTime: _ } -> 0.05)
         $ onTag "kt" (set (_Just <<< lnr) $ lcmap unwrap \{ normalizedSampleTime: t } -> min 1.0 (0.6 + t * 0.8))
-        $ nparz "psr:3;comp ~ [~ chin*4] ~ ~ [psr:3;ph psr:3;ph ~ ] _ _ , [~ ~ ~ <psr:1;print kurt:0;print> ] kurt:5;kt , ~ ~ pluck:1;pk ~ ~ ~ ~ ~ "
+        $ nparz "psr:3;comp ~ [~ chin*4] ~ ~ [psr:3;ph psr:3;ph ~ ] _ _ , [~ ~ ~ <psr:1;print kurt:0;kt0> ] kurt:5;kt , ~ ~ pluck:1;pk ~ ~ ~ ~ ~ "
   , fire:
       map
         ( set lvt

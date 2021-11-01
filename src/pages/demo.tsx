@@ -70,7 +70,7 @@ const Demo = () => {
 			: stp === 2
 			? send(di)({
 					tag: "DE'The_possibility_to_add_new_sounds",
-					event: { one: true, two: false, three: false, four: false },
+					event: { one: true, two: true, three: true, four: true },
 			  })()
 			: stp === 3
 			? send(di)({
@@ -179,7 +179,7 @@ const Demo = () => {
 				)}
 				{step === 2 && demoInitialized && (
 					<>
-						<AnimatedHeading text="The possibility to add new sounds..." />
+						<AnimatedHeading text="The possibility to add and remove sounds..." />
 						<Step2 demoInitialized={demoInitialized} />
 					</>
 				)}
