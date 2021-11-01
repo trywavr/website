@@ -3,20 +3,24 @@ module Wavr.Harmonize where
 import Prelude
 
 import Data.Lens (_Just, set)
+import Data.List (List(..), (:))
 import Data.Maybe (Maybe)
+import Data.Monoid.Additive (Additive(..))
 import Data.Newtype (unwrap)
 import Data.Profunctor (lcmap)
 import Data.Set (Set)
 import Data.Set as Set
-import Math ((%))
+import Math ((%), pi)
 import WAGS.Create.Optionals (highpass)
 import WAGS.Lib.Tidal.Cycle (Cycle)
 import WAGS.Lib.Tidal.Download (sounds)
 import WAGS.Lib.Tidal.FX (fx, goodbye, hello)
-import WAGS.Lib.Tidal.Tidal (lnr, lnv, lvt, make, onTag, parse, s)
+import WAGS.Lib.Tidal.Tidal (betwixt, lnr, lnv, lvt, make, onTag, parse, s)
 import WAGS.Lib.Tidal.Types (Note, TheFuture, IsFresh)
-import Wavr.DemoEvent (DE'Add_new_sounds, DE'Harmonize(..))
-import Wavr.DemoTypes (Interactivity)
+import WAGS.Math (calcSlope)
+import Wags.Learn.Oscillator (lfo)
+import Wavr.DemoEvent (DE'Add_new_sounds, DE'Harmonize(..), DemoEvent(..))
+import Wavr.DemoTypes (Interactivity(..))
 
 m2 = 4.0 * 1.0 * 60.0 / 111.0 :: Number
 
@@ -28,21 +32,51 @@ nparz = parse
 unevent :: IsFresh Interactivity -> Set DE'Harmonize
 unevent = _.harmony <<< unwrap <<< _.value
 
-voly :: forall a. Set a -> Number
-voly = Set.size >>> case _ of
-  0 -> 1.0
-  1 -> 1.0
-  2 -> 0.5
-  3 -> 0.25
-  4 -> 0.15
-  _ -> 0.15
+data N1234 = N1 | N2 | N3 | N4
 
-adjv :: IsFresh Interactivity -> DE'Harmonize -> Number
-adjv event hm =
+makeLfo :: DE'Harmonize -> N1234 -> { phase :: Number, amp :: Number, freq :: Number }
+makeLfo = case _, _ of
+  H'Add_one, N1 -> { phase: 0.0 * pi, amp: 0.2, freq: 0.3 }
+  H'Add_one, N2 -> { phase: 0.2 * pi, amp: 0.2, freq: 0.3 }
+  H'Add_one, N3 -> { phase: 0.4 * pi, amp: 0.2, freq: 0.3 }
+  H'Add_one, N4 -> { phase: 0.6 * pi, amp: 0.2, freq: 0.3 }
+  H'Add_two, N1 -> { phase: 0.8 * pi, amp: 0.15, freq: 0.3 }
+  H'Add_two, N2 -> { phase: 1.0 * pi, amp: 0.2, freq: 0.3 }
+  H'Add_two, N3 -> { phase: 1.2 * pi, amp: 0.25, freq: 0.3 }
+  H'Add_two, N4 -> { phase: 1.4 * pi, amp: 0.3, freq: 0.3 }
+  H'Add_three, N1 -> { phase: 1.6 * pi, amp: 0.2, freq: 1.0 }
+  H'Add_three, N2 -> { phase: 1.8 * pi, amp: 0.25, freq: 2.0 }
+  H'Add_three, N3 -> { phase: 2.0 * pi, amp: 0.35, freq: 3.0 }
+  H'Add_three, N4 -> { phase: 2.2 * pi, amp: 0.2, freq: 4.0 }
+  H'Add_four, N1 -> { phase: 2.4 * pi, amp: 0.1, freq: 2.0 }
+  H'Add_four, N2 -> { phase: 2.6 * pi, amp: 0.2, freq: 4.0 }
+  H'Add_four, N3 -> { phase: 2.8 * pi, amp: 0.35, freq: 8.0 }
+  H'Add_four, N4 -> { phase: 3.0 * pi, amp: 0.2, freq: 16.0 }
+
+voly :: forall a. Number -> DE'Harmonize -> Set a -> Number
+voly clockTime hm = Set.size >>> case _ of
+  0 -> 1.0
+  1 -> 1.0 + lfo (makeLfo hm N1) clockTime
+  2 -> 0.5 + lfo (makeLfo hm N2) clockTime
+  3 -> 0.25 + lfo (makeLfo hm N3) clockTime
+  4 -> 0.15 + lfo (makeLfo hm N4) clockTime
+  _ -> 0.15 + lfo (makeLfo hm N4) clockTime
+
+adjv :: Number -> IsFresh Interactivity -> DE'Harmonize -> Number
+adjv clockTime event@{ value: Interactivity { sectionStartsAt: Additive ssa, raw } } hm =
   let
+    fade = case raw of
+      Nil -> 0.0
+      { value: DE'The_possibility_to_harmonize _ } : _ ->
+        let
+          o = betwixt 0.0 1.0 $ calcSlope ssa 0.0 (ssa + 5.0) 1.0 clockTime
+        in
+          o
+      _ -> 0.0
+
     ue = unevent event
   in
-    if Set.member hm ue then voly ue else 0.0
+    if Set.member hm ue then fade * voly clockTime hm ue else 0.0
 
 harmonize :: TheFuture Interactivity
 harmonize = make (m2 * 2.0)
@@ -68,16 +102,16 @@ harmonize = make (m2 * 2.0)
         $ nparz "psr:3;comp ~ [~ chin*4] ~ ~ [psr:3;ph psr:3;ph ~ ] _ _ , [~ ~ ~ <psr:1;print kurt:0;kt0> ] kurt:5;kt , ~ ~ pluck:1;pk ~ ~ ~ ~ ~ "
   , fire: s
       $ onTag "h0"
-          ( set (_Just <<< lnv) $ lcmap unwrap \{ event } -> adjv event H'Add_one
+          ( set (_Just <<< lnv) $ lcmap unwrap \{ event, clockTime } -> adjv clockTime event H'Add_one
           )
       $ onTag "h1"
-          ( set (_Just <<< lnv) $ lcmap unwrap \{ event } -> adjv event H'Add_two
+          ( set (_Just <<< lnv) $ lcmap unwrap \{ event, clockTime } -> adjv clockTime event H'Add_two
           )
       $ onTag "h2"
-          ( set (_Just <<< lnv) $ lcmap unwrap \{ event } -> adjv event H'Add_three
+          ( set (_Just <<< lnv) $ lcmap unwrap \{ event, clockTime } -> adjv clockTime event H'Add_three
           )
       $ onTag "h3"
-          ( set (_Just <<< lnv) $ lcmap unwrap \{ event } -> adjv event H'Add_four
+          ( set (_Just <<< lnv) $ lcmap unwrap \{ event, clockTime } -> adjv clockTime event H'Add_four
           )
       $ nparz "harmy:0;h0 , harmy:1;h1 , harmy:2;h2 , harmy:3;h3"
   , title: "lo fi"

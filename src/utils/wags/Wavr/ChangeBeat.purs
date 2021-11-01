@@ -2,18 +2,21 @@ module Wavr.ChangeBeat where
 
 import Prelude
 
-import Data.Lens (_Just, set)
+import Data.Lens (_Just, set, traversed)
+import Data.List (List(..), (:))
 import Data.Maybe (Maybe)
+import Data.Monoid.Additive (Additive(..))
 import Data.Newtype (unwrap)
 import Data.Profunctor (lcmap)
 import Math ((%))
 import WAGS.Create.Optionals (highpass)
 import WAGS.Lib.Tidal.Cycle (Cycle)
-import Wavr.DemoEvent (DE'Beat_choice(..))
-import Wavr.DemoTypes (Interactivity)
 import WAGS.Lib.Tidal.FX (fx, goodbye, hello)
-import WAGS.Lib.Tidal.Tidal (lnr, lnv, lvt, make, onTag, parse, s)
+import WAGS.Lib.Tidal.Tidal (betwixt, lnr, lnv, lvt, make, onTag, parse, s)
 import WAGS.Lib.Tidal.Types (Note, TheFuture)
+import WAGS.Math (calcSlope)
+import Wavr.DemoEvent (DE'Beat_choice(..), DemoEvent(..))
+import Wavr.DemoTypes (Interactivity(..))
 
 m2 = 4.0 * 1.0 * 60.0 / 111.0 :: Number
 
@@ -42,15 +45,28 @@ changeBeat dbc = make (m2 * 2.0)
         $ onTag "kt0" (set (_Just <<< lnv) $ lcmap unwrap \{ normalizedSampleTime: _ } -> 0.05)
         $ onTag "kt" (set (_Just <<< lnr) $ lcmap unwrap \{ normalizedSampleTime: t } -> min 1.0 (0.6 + t * 0.8))
         $ nparz "psr:3;comp ~ [~ chin*4] ~ ~ [psr:3;ph psr:3;ph ~ ] _ _ , [~ ~ ~ <psr:1;print kurt:0;kt0> ] kurt:5;kt , ~ ~ pluck:1;pk ~ ~ ~ ~ ~ "
-  , fire: s $ onTag "r1" (set (_Just <<< lnv) $ lcmap unwrap \_ -> 1.0) $ nparz
-      ( case dbc of
-          BC'C1 -> bt1
-          BC'C2 -> bt2
-          BC'C3 -> bt3
-          BC'C4 -> bt4
-          BC'C5 -> bt5
-          BC'C6 -> bt6
-      )
+  , fire: s
+      $
+        ( set (traversed <<< _Just <<< lnv) $
+            ( lcmap unwrap \{ clockTime, event: { value: Interactivity { sectionStartsAt: Additive ssa, raw } } } -> case raw of
+                Nil -> 0.0
+                { value: DE'The_possibility_to_change_a_beat _ } : _ ->
+                  let
+                    o = betwixt 0.0 1.0 $ calcSlope ssa 0.0 (ssa + 5.0) 1.0 clockTime
+                  in
+                    o
+                _ -> 0.0
+            )
+        )
+      $ nparz
+          ( case dbc of
+              BC'C1 -> bt1
+              BC'C2 -> bt2
+              BC'C3 -> bt3
+              BC'C4 -> bt4
+              BC'C5 -> bt5
+              BC'C6 -> bt6
+          )
   , title: "lo fi"
   }
 
