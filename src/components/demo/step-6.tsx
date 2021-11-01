@@ -24,7 +24,7 @@ export const Step6 = ({
 	demoInitialized: DemoInitialized;
 }) => {
 	const sendr = (event: Boolean) =>
-		send({
+		send(demoInitialized)({
 			tag: "DE'The_possibility_to_glitch_crackle_and_shimmer",
 			event,
 		});

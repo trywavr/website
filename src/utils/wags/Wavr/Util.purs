@@ -86,11 +86,20 @@ sst ri =
       (a : _) -> guard (not $ ceq ri.value a.value) rv
 
 de2list
-  :: Event.Event DemoEvent
+  :: Number
+  -> Event.Event DemoEvent
   -> Event.Event Interactivity
-de2list i = mapped1
+de2list corrective i = mapped1
   where
-  stamped = map (over (prop (Proxy :: _ "time")) (unInstant >>> unwrap)) (withTime i)
+  stamped = map
+    ( over (prop (Proxy :: _ "time"))
+        ( unInstant
+            >>> unwrap
+            >>> (_ / 1000.0) -- to seconds
+            >>> (_ - corrective) -- sync to audio clock
+        )
+    )
+    (withTime i)
   folded = Event.fold
     ( \a b ->
         { sectionStartsAt: fromMaybe b.sectionStartsAt (sst a b.raw)

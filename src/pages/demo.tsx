@@ -236,25 +236,7 @@ const Demo = () => {
 					<Button
 						size={2}
 						onClick={() => {
-							step === 1 &&
-								send(demoInitialized)({
-									tag: "DE'The_possibility_to_add_new_sounds",
-									event: { one: true, two: false, three: false, four: false },
-								})();
-							step === 2 &&
-								send(demoInitialized)({
-									tag: "DE'The_possibility_to_take_a_sound_in_a_new_direction",
-									event: {
-										check: false,
-										choice: "NDC'C1",
-										slider: 0.5,
-									},
-								})();
-							step === 3 &&
-								send(demoInitialized)({
-									tag: "DE'The_possibility_to_change_a_beat",
-									event: "BC'C1",
-								})();
+							step > 0 && demoInitialized && stepToSend(demoInitialized)(step + 1);
 							router.push(`/demo?stepNumber=${step + 1}`);
 						}}
 					>

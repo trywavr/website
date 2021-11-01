@@ -3,6 +3,7 @@ module Wavr.Crackle where
 import Prelude
 
 import Data.Lens (_Just, set)
+import Data.Typelevel.Num.Reps (D4)
 import Data.List (List(..), (:))
 import Data.Maybe (Maybe)
 import Data.Monoid.Endo (Endo(..))
@@ -10,7 +11,7 @@ import Data.Newtype (unwrap)
 import Data.Profunctor (lcmap)
 import Data.Set (Set)
 import Data.Set as Set
-import Data.Tuple.Nested ((/\))
+import Data.Tuple.Nested ((/\), type (/\))
 import Data.Vec ((+>))
 import Data.Vec as V
 import Math ((%))
@@ -73,6 +74,9 @@ cpo = CTOR.PeriodicOsc
 ipw :: APFofT Number -> Number -> AudioParameter
 ipw f clockTime = (f { time: clockTime, headroomInSeconds: 0.3 })
 
+vex :: V.Vec D4 Number /\ V.Vec D4 Number
+vex = ((0.25 +> -0.05 +> 0.31 +> 0.03 +> V.empty) /\ (-0.06 +> 0.2 +> 0.0 +> 0.13 +> V.empty))
+
 crackle :: TheFuture Interactivity
 crackle = make (m2 * 2.0)
   { earth: s
@@ -105,21 +109,21 @@ crackle = make (m2 * 2.0)
                   fx
                     ( goodbye $ gain 1.0
                         { gfis2: gain (ipw CPW.pw'fis2 clockTime * gateE 1.0)
-                            { fis2: cpo ((1.0 +> V.empty) /\ (0.0 +> V.empty)) On fis2 }
+                            { fis2: cpo vex On fis2 }
                         , gfis3: gain (ipw CPW.pw'fis3 clockTime * gateE 0.9)
-                            { fis3: cpo ((1.0 +> V.empty) /\ (0.0 +> V.empty)) On fis3 }
+                            { fis3: cpo vex On fis3 }
                         , gcis4: gain (ipw CPW.pw'cis4 clockTime * gateE 0.6)
-                            { cis4: cpo ((1.0 +> V.empty) /\ (0.0 +> V.empty)) On cis4 }
+                            { cis4: cpo vex On cis4 }
                         , gfis4: gain (ipw CPW.pw'fis4 clockTime * gateE 0.0)
-                            { fis4: cpo ((1.0 +> V.empty) /\ (0.0 +> V.empty)) On fis4 }
+                            { fis4: cpo vex On fis4 }
                         , ga4: gain (ipw CPW.pw'a4 clockTime * gateE 0.5)
-                            { a4: cpo ((1.0 +> V.empty) /\ (0.0 +> V.empty)) On a4 }
+                            { a4: cpo vex On a4 }
                         , gcis5: gain (ipw CPW.pw'cis5 clockTime * gateE 0.3)
-                            { cis5: cpo ((1.0 +> V.empty) /\ (0.0 +> V.empty)) On cis5 }
+                            { cis5: cpo vex On cis5 }
                         , ge5: gain (ipw CPW.pw'e5 clockTime * gateE 0.4)
-                            { e5: cpo ((1.0 +> V.empty) /\ (0.0 +> V.empty)) On e5 }
+                            { e5: cpo vex On e5 }
                         , ggis5: gain (ipw CPW.pw'gis5 clockTime * gateE 0.9)
-                            { gis5: cpo ((1.0 +> V.empty) /\ (0.0 +> V.empty)) On gis5 }
+                            { gis5: cpo vex On gis5 }
                         , passthrough: hello
                         }
                     )

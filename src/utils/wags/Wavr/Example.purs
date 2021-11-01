@@ -2,6 +2,7 @@ module Wavr.Example where
 
 import Prelude
 
+--import Debug (spy)
 import Data.List (List(..), (:))
 import WAGS.Lib.Tidal.Samples as S
 import WAGS.Lib.Tidal.Tidal (make, s)

@@ -6,6 +6,7 @@ import Control.Promise (Promise, fromAff, toAffE)
 import Data.Either (Either(..))
 import Data.List (fold)
 import Data.Map (Map)
+import Data.JSDate (now, getTime)
 import Data.Map as Map
 import Data.Traversable (traverse)
 import Data.Tuple (snd)
@@ -16,7 +17,7 @@ import Effect.Class (liftEffect)
 import Effect.Ref as Ref
 import FRP.Event (EventIO, create, subscribe)
 import Foreign (Foreign)
-import WAGS.Interpret (close, constant0Hack, context, contextResume, contextState, defaultFFIAudio, makeUnitCache)
+import WAGS.Interpret (close, constant0Hack, context, contextResume, contextState, defaultFFIAudio, makeUnitCache, getAudioClockTime)
 import WAGS.Lib.Learn (FullSceneBuilder(..))
 import WAGS.Lib.Tidal.Engine (engine)
 import WAGS.Lib.Tidal.Tidal (openFuture)
@@ -33,6 +34,7 @@ import Wavr.NewDirection (newDirection)
 import Wavr.ChangeBeat (changeBeat)
 import Wavr.Util (de2list, consoleDemoEvent, easingAlgorithm)
 import Wavr.DemoEvent (DE'Beat_choice(..))
+import Wavr.EndBuild (endBuild)
 
 type DemoInitialized =
   { bufCache :: Ref.Ref (Map Sample { url :: BufferUrl, buffer :: ForwardBackwards })
@@ -69,6 +71,7 @@ initialize_ ctx = do
     , newDirection
     , harmonize
     , infiniteGest
+    , endBuild
     ]
   pure { bufCache, interactivity }
 
@@ -86,12 +89,15 @@ start_ audioCtx logger { bufCache, interactivity } = do
   cstate <- liftEffect $ contextState audioCtx
   when (cstate /= "running") (toAffE $ contextResume audioCtx)
   unitCache <- liftEffect makeUnitCache
+  ct <- liftEffect $ getAudioClockTime audioCtx
+  tn <- ((_ / 1000.0) <<< getTime) <$> liftEffect now
+  let corrective = tn - ct
   let
     ffiAudio = defaultFFIAudio audioCtx unitCache
   let
     FullSceneBuilder { triggerWorld, piece } =
       engine
-        (de2list $ consoleDemoEvent logger interactivity.event)
+        (de2list corrective $ consoleDemoEvent logger interactivity.event)
         (pure Example.wag)
         (Left ohBehave)
   trigger /\ world <- snd $ triggerWorld (audioCtx /\ pure (pure {} /\ pure {}))

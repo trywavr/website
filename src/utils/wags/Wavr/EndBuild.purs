@@ -2,6 +2,7 @@ module Wavr.EndBuild where
 
 import Prelude
 
+--import Debug (spy)
 import Data.Lens (_Just, set, traversed)
 import Data.List (List(..), (:))
 import Data.Maybe (Maybe)
@@ -15,12 +16,10 @@ import WAGS.Lib.Tidal.FX (fx, goodbye, hello)
 import WAGS.Lib.Tidal.Tidal (betwixt, lnr, lnv, lvt, make, onTag, parse, s)
 import WAGS.Lib.Tidal.Types (Note, TheFuture)
 import WAGS.Math (calcSlope)
-import Wavr.DemoEvent (DE'Add_new_sounds, DemoEvent(..))
+import Wavr.DemoEvent (DemoEvent(..))
 import Wavr.DemoTypes (Interactivity(..))
 
 m2 = 4.0 * 1.0 * 60.0 / 111.0 :: Number
-
-type ANS = DE'Add_new_sounds
 
 nparz :: String -> Cycle (Maybe (Note Interactivity))
 nparz = parse
@@ -49,7 +48,10 @@ endBuild = make (m2 * 2.0)
           ( lcmap unwrap \{ clockTime, event: { value: Interactivity { sectionStartsAt: Additive ssa, raw } } } -> case raw of
               Nil -> 0.0
               { value: DE'Music_must_explode_with_possibilities_2 } : _ ->
-                betwixt 0.0 1.0 $ calcSlope ssa 0.0 (ssa + 10.0) 1.0 clockTime
+                let
+                  o = betwixt 0.0 1.0 $ calcSlope ssa 0.0 (ssa + 10.0) 1.0 clockTime
+                in
+                  o
               _ -> 0.0
           )
       $ nparz "gretsch:0 gretsch:1 gretsch:2 gretsch:3 gretsch:4 gretsch:5 gretsch:6 gretsch:7 gretsch:8 gretsch:9 gretsch:10 gretsch:11 gretsch:12 gretsch:13 gretsch:14 gretsch:15 gretsch:16 gretsch:17 gretsch:18 gretsch:19 gretsch:20 gretsch:21 gretsch:22 gretsch:23 gretsch:0 gretsch:1 gretsch:2 gretsch:3 gretsch:4 gretsch:5 gretsch:6 gretsch:7 gretsch:8 gretsch:9 gretsch:10 gretsch:11 gretsch:12 gretsch:13 gretsch:14 gretsch:15 gretsch:16 gretsch:17 gretsch:18 gretsch:19 gretsch:20 gretsch:21 gretsch:22 gretsch:23 gretsch:0 gretsch:1 gretsch:2 gretsch:3 gretsch:4 gretsch:5 gretsch:6 gretsch:7 gretsch:8 gretsch:9 gretsch:10 gretsch:11 gretsch:12 gretsch:13 gretsch:14 gretsch:15 gretsch:16 gretsch:17 gretsch:18 gretsch:19 gretsch:20 gretsch:21 gretsch:22 gretsch:23"
