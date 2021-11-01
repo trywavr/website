@@ -33,11 +33,7 @@ const Container = styled('div', {
 type DIDS = { demoStarted: DemoStarted; demoInitialized: DemoInitialized };
 
 const Demo = () => {
-	const [buffersPrefetched, setBuffersPrefetched] =
-		useState<BuffersPrefetched | null>(null);
-	useEffect(() => {
-		setBuffersPrefetched(prefetch());
-	}, [null]);
+	const [buffersPrefetched] = useState<BuffersPrefetched>(() => prefetch());
 	const router = useRouter();
 	const [demoInitialized, setDemoInitialized] =
 		useState<DemoInitialized | void>();
@@ -133,17 +129,16 @@ const Demo = () => {
 							<Button
 								size="2"
 								onClick={() => {
-									buffersPrefetched &&
-										startUsingPrefetch((s: string) => () => console.error(s))(
-											buffersPrefetched
-										)().then(
-											({ demoStarted, demoInitialized }: DIDS) => {
-												setDemoInitialized(demoInitialized);
-												setDemoStarted(demoStarted);
-												stepToSend(demoInitialized)(step);
-											},
-											(err: Error) => console.error(err)
-										);
+									startUsingPrefetch((s: string) => () => console.error(s))(
+										buffersPrefetched
+									)().then(
+										({ demoStarted, demoInitialized }: DIDS) => {
+											setDemoInitialized(demoInitialized);
+											setDemoStarted(demoStarted);
+											stepToSend(demoInitialized)(step);
+										},
+										(err: Error) => console.error(err)
+									);
 									setDialogSeen(true);
 									setDialogOpen(false);
 								}}
@@ -159,7 +154,6 @@ const Demo = () => {
 						<AnimatedHeading text="Peek into what's possible" />
 						<Step0
 							onClick={() =>
-								buffersPrefetched &&
 								startUsingPrefetch((s: string) => () => console.error(s))(
 									buffersPrefetched
 								)().then(
