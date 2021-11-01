@@ -33,7 +33,7 @@ const Container = styled('div', {
 type DIDS = { demoStarted: DemoStarted; demoInitialized: DemoInitialized };
 
 const Demo = () => {
-	const [buffersPrefetched] = useState<BuffersPrefetched>(() => prefetch());
+	const [buffersPrefetched] = useState<BuffersPrefetched>(prefetch);
 	const router = useRouter();
 	const [demoInitialized, setDemoInitialized] =
 		useState<DemoInitialized | void>();
