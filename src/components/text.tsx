@@ -3,13 +3,27 @@ import { styled } from '../../stitches.config';
 export const Text = styled('p', {
 	// Reset
 	fontFamily: '$inter',
-	lineHeight: '1',
+	lineHeight: '1.4',
 	margin: '0',
 	fontWeight: 400,
 	fontVariantNumeric: 'tabular-nums',
 	display: 'block',
 
 	variants: {
+		color: {
+			primary: {
+				color: "$mauve12"
+			},
+			secondary: {
+				color: "$mauve11"
+			},
+			tertiary: {
+				color: "$mauve10"
+			},
+			inherit: {
+				color: "inherit"
+			}
+		},
 		size: {
 			xs: {
 				fontSize: '$xs',
@@ -47,8 +61,39 @@ export const Text = styled('p', {
 				textIndent: '-.025em',
 			},
 		},
+		fontWeight: {
+			100: {
+				fontWeight: "$100",
+			},
+			200: {
+				fontWeight: "$200",
+			},
+			300: {
+				fontWeight: "$300",
+			},
+			400: {
+				fontWeight: "$400",
+			},
+			500: {
+				fontWeight: "$500",
+			},
+			600: {
+				fontWeight: "$600",
+			},
+			700: {
+				fontWeight: "$700",
+			},
+			800: {
+				fontWeight: "$800",
+			},
+			900: {
+				fontWeight: "$900",
+			}
+		}
 	},
 	defaultVariants: {
+		color: 'secondary',
 		size: 'md',
+		fontWeight: 400
 	},
 });
