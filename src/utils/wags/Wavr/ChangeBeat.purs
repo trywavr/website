@@ -9,15 +9,13 @@ import Data.Profunctor (lcmap)
 import Math ((%))
 import WAGS.Create.Optionals (highpass)
 import WAGS.Lib.Tidal.Cycle (Cycle)
-import Wavr.DemoEvent (DE'Add_new_sounds, DE'Beat_choice(..))
+import Wavr.DemoEvent (DE'Beat_choice(..))
 import Wavr.DemoTypes (Interactivity)
 import WAGS.Lib.Tidal.FX (fx, goodbye, hello)
 import WAGS.Lib.Tidal.Tidal (lnr, lnv, lvt, make, onTag, parse, s)
 import WAGS.Lib.Tidal.Types (Note, TheFuture)
 
 m2 = 4.0 * 1.0 * 60.0 / 111.0 :: Number
-
-type ANS = DE'Add_new_sounds
 
 nparz :: String -> Cycle (Maybe (Note Interactivity))
 nparz = parse

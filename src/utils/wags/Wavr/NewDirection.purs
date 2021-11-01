@@ -39,19 +39,14 @@ newDirection = make (m2 * 2.0)
       $ onTag "nn"
           ( set (_Just <<< lnr)
               ( lcmap unwrap \{ event } ->
-                  let ue = unevent event in 1.0 + ue.slider
-              )
-          )
-      $ onTag "nn"
-          ( set (_Just <<< lnv)
-              ( lcmap unwrap \{ event, clockTime } ->
                   let
                     ue = unevent event
                   in
-                    case ue.choice of
-                      NDC'C1 -> 1.0
-                      NDC'C2 -> lfo { phase: 0.0, amp: 0.5, freq: 10.0 } clockTime + 0.5
-                      NDC'C3 -> lfo { phase: 0.0, amp: 0.5, freq: 20.0 } clockTime + 0.5
+                    ( case ue.choice of
+                        NDC'C1 -> 1.0
+                        NDC'C2 -> 2.5
+                        NDC'C3 -> 0.3
+                    ) + ue.slider
               )
           )
       $ onTag "nnc" (set (_Just <<< lnv) (lcmap unwrap \{ event } -> let ue = unevent event in if ue.check then 0.6 else 0.0))

@@ -30,7 +30,9 @@ import Wavr.InfiniteGest (infiniteGest)
 import Wavr.LoFi (loFi)
 import Wavr.MusicWasNeverMeantToBeStaticOrFixed (musicWasNeverMeantToBeStaticOrFixed)
 import Wavr.NewDirection (newDirection)
+import Wavr.ChangeBeat (changeBeat)
 import Wavr.Util (de2list, consoleDemoEvent, easingAlgorithm)
+import Wavr.DemoEvent (DE'Beat_choice(..))
 
 type DemoInitialized =
   { bufCache :: Ref.Ref (Map Sample { url :: BufferUrl, buffer :: ForwardBackwards })
@@ -59,6 +61,11 @@ initialize_ ctx = do
   map fold $ traverse (doDownloads ctx bufCache (const $ pure unit))
     [ loFi { isFresh: true, value: mempty }
     , musicWasNeverMeantToBeStaticOrFixed { isFresh: true, value: mempty }
+    , changeBeat BC'C1
+    , changeBeat BC'C2
+    , changeBeat BC'C3
+    , changeBeat BC'C4
+    , changeBeat BC'C5
     , newDirection
     , harmonize
     , infiniteGest

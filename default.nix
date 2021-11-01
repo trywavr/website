@@ -23,6 +23,6 @@ in pkgs.stdenv.mkDerivation {
 
     pkgs.dhall-json
 
-    pkgs.licensee
+    pkgs.yarn
   ];
 }
