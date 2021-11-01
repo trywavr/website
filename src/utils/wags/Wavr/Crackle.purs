@@ -3,7 +3,6 @@ module Wavr.Crackle where
 import Prelude
 
 import Data.Lens (_Just, set)
-import Data.Typelevel.Num.Reps (D4)
 import Data.List (List(..), (:))
 import Data.Maybe (Maybe)
 import Data.Monoid.Endo (Endo(..))
@@ -12,8 +11,10 @@ import Data.Profunctor (lcmap)
 import Data.Set (Set)
 import Data.Set as Set
 import Data.Tuple.Nested ((/\), type (/\))
+import Data.Typelevel.Num.Reps (D4)
 import Data.Vec ((+>))
 import Data.Vec as V
+-- import Debug (spy)
 import Math ((%))
 import WAGS.Create.Optionals (gain, highpass)
 import WAGS.Graph.AudioUnit (OnOff(..))

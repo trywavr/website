@@ -58,9 +58,9 @@ voly clockTime hm = Set.size >>> case _ of
   0 -> 1.0
   1 -> 1.0 + lfo (makeLfo hm N1) clockTime
   2 -> 0.5 + lfo (makeLfo hm N2) clockTime
-  3 -> 0.25 + lfo (makeLfo hm N3) clockTime
-  4 -> 0.15 + lfo (makeLfo hm N4) clockTime
-  _ -> 0.15 + lfo (makeLfo hm N4) clockTime
+  3 -> 0.5 + lfo (makeLfo hm N3) clockTime
+  4 -> 0.5 + lfo (makeLfo hm N4) clockTime
+  _ -> 0.5 + lfo (makeLfo hm N4) clockTime
 
 adjv :: Number -> IsFresh Interactivity -> DE'Harmonize -> Number
 adjv clockTime event@{ value: Interactivity { sectionStartsAt: Additive ssa, raw } } hm =

@@ -59,8 +59,10 @@ toCrackle fktr il = il # go >>> NEL.fromList >>> case _ of
     let
       vv = val $ sorted l
     in
-      \tm -> b01 ((max 0.0 (tm - hd.time)) * fktr * (if hd.oo then 1.0 else 0.0) + vv)
+      \tm -> b01 ((max 0.0 (tm - hd.time)) * fktr * (if hd.oo then upv else dnv) + vv)
   where
+  upv = 0.8
+  dnv = -0.1
   go ({ value: DE'The_possibility_to_glitch_crackle_and_shimmer oo, time } : b) = { time, oo } : go b
   go _ = Nil
   sorted = NEL.sortBy (compare `on` _.time)
@@ -69,7 +71,7 @@ toCrackle fktr il = il # go >>> NEL.fromList >>> case _ of
         ( \{ v, acc } too ->
             { v: too
             , acc:
-                b01 $ acc + ((too.time - v.time) * fktr * (if too.oo then 1.0 else 0.0))
+                b01 $ acc + ((too.time - v.time) * fktr * (if too.oo then upv else dnv))
             }
         )
         { v: b, acc: 0.0 }
@@ -109,7 +111,7 @@ de2list corrective i = mapped1
     stamped
     { sectionStartsAt: Additive 0.0, raw: Nil }
   mapped1 = folded <#> \{ raw, sectionStartsAt } ->
-    Interactivity { raw, harmony: toHarm raw, crackle: toCrackle 0.1 raw, sectionStartsAt }
+    Interactivity { raw, harmony: toHarm raw, crackle: toCrackle 0.2 raw, sectionStartsAt }
 
 easingAlgorithm :: Cofree ((->) Int) Int
 easingAlgorithm =
