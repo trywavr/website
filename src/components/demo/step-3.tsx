@@ -1,7 +1,6 @@
 import React from 'react';
 import { Checkbox, Radio, RadioGroup, Slider } from '@components/index';
-// @ts-expect-error TODO fix types
-import { send } from '../../utils/wags/handoff';
+import { send, DemoInitialized } from '../../utils/wags/handoff';
 
 type Step3State = {
 	check: boolean;

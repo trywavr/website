@@ -2,8 +2,7 @@ import React from 'react';
 import { SpeakerLoudIcon, SpeakerOffIcon } from '@radix-ui/react-icons';
 import { Card as InstrumentCard, Text } from '@components/index';
 import { motion } from 'framer-motion';
-// @ts-expect-error TODO fix types
-import { send } from '../../utils/wags/handoff';
+import { send, DemoInitialized } from '../../utils/wags/handoff';
 
 const instruments = ['Happiness', 'Sadness', 'Confusion', 'Regret'];
 

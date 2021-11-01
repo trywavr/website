@@ -1,19 +1,16 @@
-type DemoInitialized = void & { _: 'DemoInitialized' };
-type DemoStarted = void & { _: 'DemoStarted' };
+/// <reference types="handoff" />
 
-declare module 'handoff' {
-	export function initialize(): Promise<DemoInitialized>;
-	export function initializeAndStart(
-		logger: (txt: string) => () => void
-	): () => Promise<{
-		demoStarted: DemoStarted;
-		demoInitialized: DemoInitialized;
-	}>;
-	export function start(
-		logger: (txt: string) => () => void
-	): (demoInitialized: DemoInitialized) => () => Promise<DemoStarted>;
-	export function send(
-		demoInitialized: DemoInitialized
-	): (event: any) => () => void;
-	export function stop(demoStarted: DemoStarted): () => void;
-}
+export type BuffersPrefetched = void & { _: 'BuffersPrefetched' };
+export type DemoInitialized = void & { _: 'DemoInitialized' };
+export type DemoStarted = void & { _: 'DemoStarted' };
+export function prefetch(): BuffersPrefetched;
+export function startUsingPrefetch(logger: (txt: string) => () => void): (
+	buffersPrefetched: BuffersPrefetched
+) => () => Promise<{
+	demoStarted: DemoStarted;
+	demoInitialized: DemoInitialized;
+}>;
+export function send(
+	demoInitialized: DemoInitialized
+): (event: any) => () => void;
+export function stop(demoStarted: DemoStarted): () => void;

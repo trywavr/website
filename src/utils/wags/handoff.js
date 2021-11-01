@@ -4845,14 +4845,6 @@ var PS = {};
 
   exports.makeAff = Aff.Async;
 
-  exports.generalBracket = function (acquire) {
-    return function (options) {
-      return function (k) {
-        return Aff.Bracket(acquire, options, k);
-      };
-    };
-  };
-
   exports._makeFiber = function (util, aff) {
     return function () {
       return Aff.Fiber(util, null, aff);
@@ -4976,6 +4968,9 @@ var PS = {};
   var Effect_Class = $PS["Effect.Class"];
   var Partial_Unsafe = $PS["Partial.Unsafe"];
   var Unsafe_Coerce = $PS["Unsafe.Coerce"];
+  var Canceler = function (x) {
+      return x;
+  };
   var functorParAff = {
       map: $foreign["_parAffMap"]
   };
@@ -5031,15 +5026,6 @@ var PS = {};
   var delay = function (v) {
       return $foreign["_delay"](Data_Either.Right.create, v);
   };
-  var bracket = function (acquire) {
-      return function (completed) {
-          return $foreign.generalBracket(acquire)({
-              killed: Data_Function["const"](completed),
-              failed: Data_Function["const"](completed),
-              completed: Data_Function["const"](completed)
-          });
-      };
-  };
   var applyParAff = {
       apply: $foreign["_parAffApply"],
       Functor0: function () {
@@ -5077,6 +5063,17 @@ var PS = {};
       Monad0: function () {
           return monadAff;
       }
+  };
+  var effectCanceler = (function () {
+      var $42 = Effect_Class.liftEffect(monadEffectAff);
+      return function ($43) {
+          return Canceler(Data_Function["const"]($42($43)));
+      };
+  })();
+  var joinFiber = function (v) {
+      return $foreign.makeAff(function (k) {
+          return Data_Functor.map(Effect.functorEffect)(effectCanceler)(v.join(k));
+      });
   };   
   var monadThrowAff = {
       throwError: $foreign["_throwError"],
@@ -5143,9 +5140,10 @@ var PS = {};
           return semigroupCanceler;
       }
   };
+  exports["launchAff"] = launchAff;
   exports["runAff_"] = runAff_;
   exports["delay"] = delay;
-  exports["bracket"] = bracket;
+  exports["joinFiber"] = joinFiber;
   exports["functorAff"] = functorAff;
   exports["applyAff"] = applyAff;
   exports["applicativeAff"] = applicativeAff;
@@ -11160,13 +11158,13 @@ var PS = {};
   exports.context = function () {
     return new (window.AudioContext || window.webkitAudioContext)();
   };
-  exports.contextState = function(audioCtx) {
-    return function() {
+  exports.contextState = function (audioCtx) {
+    return function () {
       return audioCtx.state;
     }
   }
-  exports.contextResume = function(audioCtx) {
-    return function() {
+  exports.contextResume = function (audioCtx) {
+    return function () {
       return audioCtx.resume();
     }
   }
@@ -11197,15 +11195,15 @@ var PS = {};
       } else {
         unit.parameters.
            get(paramName)
-          [
-            param.transition === "NoRamp"
-              ? "setValueAtTime"
-              : param.transition === "LinearRamp"
+        [
+          param.transition === "NoRamp"
+            ? "setValueAtTime"
+            : param.transition === "LinearRamp"
               ? "linearRampToValueAtTime"
               : param.transition === "ExponentialRamp"
-              ? "exponentialRampToValueAtTime"
-              : "linearRampToValueAtTime"
-          ](param.param, timeToSet + param.timeOffset);
+                ? "exponentialRampToValueAtTime"
+                : "linearRampToValueAtTime"
+        ](param.param, timeToSet + param.timeOffset);
       }
     }
   };
@@ -11224,10 +11222,10 @@ var PS = {};
           param.transition === "NoRamp"
             ? "setValueAtTime"
             : param.transition === "LinearRamp"
-            ? "linearRampToValueAtTime"
-            : param.transition === "ExponentialRamp"
-            ? "exponentialRampToValueAtTime"
-            : "linearRampToValueAtTime"
+              ? "linearRampToValueAtTime"
+              : param.transition === "ExponentialRamp"
+                ? "exponentialRampToValueAtTime"
+                : "linearRampToValueAtTime"
         ](param.param, timeToSet + param.timeOffset);
       }
     }
@@ -11278,12 +11276,12 @@ var PS = {};
               stateX.units[x].main.disconnect(stateY.units[y].main);
               stateX.units[x].outgoing = stateX.units[x].outgoing.filter(
                 function (i) {
-                  !(i.unit === y && i.state === stateY);
+                  return !(i.unit === y && i.state === stateY);
                 }
               );
               stateY.units[y].incoming = stateY.units[y].incoming.filter(
                 function (i) {
-                  !(i.unit === x && i.state === stateX);
+                  return !(i.unit === x && i.state === stateX);
                 }
               );
               if (stateY.units[y].se) {
@@ -12697,32 +12695,28 @@ var PS = {};
       };
     };
   };
-  exports.decodeAudioDataFromUri = function (ctx) {
-    return function (s) {
-      return function () {
-        {
-          return fetch(s)
-            .then(
-              function (b) {
-                return b.arrayBuffer();
-              },
-              function (e) {
-                console.error("Error fetching buffer", e);
-                return Promise.reject(e);
-              }
-            )
-            .then(
-              function (b) {
-                return ctx.decodeAudioData(b);
-              },
-              function (e) {
-                console.error("Error decoding buffer", e);
-                return Promise.reject(e);
-              }
-            );
-        }
-      };
+  exports.fetchArrayBuffer = function (s) {
+    return function () {
+      {
+        return fetch(s)
+          .then(
+            function (b) {
+              return b.arrayBuffer();
+            },
+            function (e) {
+              console.error("Error fetching buffer", e);
+              return Promise.reject(e);
+            }
+          )
+      }
     };
+  };
+  exports.decodeAudioDataFromArrayBuffer = function (ctx) {
+    return function (b) {
+      return function () {
+        return ctx.decodeAudioData(b);
+      }
+    }
   };
 
   var makePeriodicWaveImpl = function (ctx) {
@@ -12748,12 +12742,12 @@ var PS = {};
     return buffer.duration;
   };
   exports.constant0Hack = function (context) {
-    return function() {
+    return function () {
       var constant = context.createConstantSource();
       constant.offset.value = 0.0;
       constant.connect(context.destination);
       constant.start();
-      return function() {
+      return function () {
         constant.stop();
         constant.disconnect(context.destination);
       }
@@ -17189,7 +17183,9 @@ var PS = {};
   var exports = $PS["WAGS.Interpret"];
   var $foreign = $PS["WAGS.Interpret"];
   var Control_Applicative = $PS["Control.Applicative"];
+  var Control_Bind = $PS["Control.Bind"];
   var Control_Category = $PS["Control.Category"];
+  var Control_Promise = $PS["Control.Promise"];
   var Data_Array = $PS["Data.Array"];
   var Data_Either = $PS["Data.Either"];
   var Data_Function = $PS["Data.Function"];
@@ -17206,6 +17202,7 @@ var PS = {};
   var Data_Typelevel_Undefined = $PS["Data.Typelevel.Undefined"];
   var Data_Unit = $PS["Data.Unit"];
   var Data_Vec = $PS["Data.Vec"];
+  var Effect_Aff = $PS["Effect.Aff"];
   var Foreign_Object = $PS["Foreign.Object"];
   var Safe_Coerce = $PS["Safe.Coerce"];
   var WAGS_Control_Types = $PS["WAGS.Control.Types"];
@@ -17318,7 +17315,7 @@ var PS = {};
           if (v instanceof WAGS_Rendered.FourX) {
               return "4x";
           };
-          throw new Error("Failed pattern match at WAGS.Interpret (line 1002, column 15 - line 1005, column 18): " + [ v.constructor.name ]);
+          throw new Error("Failed pattern match at WAGS.Interpret (line 1010, column 15 - line 1013, column 18): " + [ v.constructor.name ]);
       }
   };
   var safeToFFI_Number = {
@@ -17357,7 +17354,7 @@ var PS = {};
                   if (v1 instanceof WAGS_Graph_AudioUnit.OffOn) {
                       return "offOn";
                   };
-                  throw new Error("Failed pattern match at WAGS.Interpret (line 1056, column 13 - line 1059, column 31): " + [ v1.constructor.name ]);
+                  throw new Error("Failed pattern match at WAGS.Interpret (line 1065, column 13 - line 1068, column 31): " + [ v1.constructor.name ]);
               })(v.param),
               timeOffset: v.timeOffset,
               transition: Data_Show.show(WAGS_Graph_Parameter.showAudioParameterTransition)(v.transition),
@@ -17947,6 +17944,16 @@ var PS = {};
           };
       };
   };
+  var decodeAudioDataFromUri = function (ctx) {
+      return function (s) {
+          return Control_Bind.bind(Effect_Aff.bindAff)(Control_Promise.toAffE($foreign.fetchArrayBuffer(s)))((function () {
+              var $758 = $foreign.decodeAudioDataFromArrayBuffer(ctx);
+              return function ($759) {
+                  return Control_Promise.toAffE($758($759));
+              };
+          })());
+      };
+  };
   var connectXToY = function (dict) {
       return dict.connectXToY;
   };
@@ -18028,7 +18035,7 @@ var PS = {};
               if (v.value1 instanceof Data_Either.Right) {
                   return makePeriodicOscV(dictAudioInterpret)(v.value0)(v.value1.value0)(v.value2)(v.value3);
               };
-              throw new Error("Failed pattern match at WAGS.Interpret (line 832, column 32 - line 834, column 44): " + [ v.value1.constructor.name ]);
+              throw new Error("Failed pattern match at WAGS.Interpret (line 840, column 32 - line 842, column 44): " + [ v.value1.constructor.name ]);
           };
           if (v instanceof WAGS_Rendered.MakePlayBuf) {
               return makePlayBuf(dictAudioInterpret)(v.value0)(v.value1)(v.value2)(v.value3)(v.value4);
@@ -18097,7 +18104,7 @@ var PS = {};
               if (v.value1 instanceof Data_Either.Right) {
                   return setPeriodicOscV(dictAudioInterpret)(v.value0)(v.value1.value0);
               };
-              throw new Error("Failed pattern match at WAGS.Interpret (line 860, column 27 - line 862, column 40): " + [ v.value1.constructor.name ]);
+              throw new Error("Failed pattern match at WAGS.Interpret (line 868, column 27 - line 870, column 39): " + [ v.value1.constructor.name ]);
           };
           if (v instanceof WAGS_Rendered.SetOnOff) {
               return setOnOff(dictAudioInterpret)(v.value0)(v.value1);
@@ -18159,7 +18166,7 @@ var PS = {};
           if (v instanceof WAGS_Rendered.SetTumult) {
               return setGain(dictAudioInterpret)(v.value0)(Control_Applicative.pure(WAGS_Graph_Parameter.applicativeAudioParameter)(1.0));
           };
-          throw new Error("Failed pattern match at WAGS.Interpret (line 808, column 24 - line 886, column 46): " + [ v.constructor.name ]);
+          throw new Error("Failed pattern match at WAGS.Interpret (line 816, column 24 - line 894, column 46): " + [ v.constructor.name ]);
       };
   };
   var makeInstructionsEffectful = function (a) {
@@ -18167,23 +18174,23 @@ var PS = {};
       return function (v) {
           if (v instanceof Data_Maybe.Nothing) {
               return Data_Functor.map(Data_Functor.functorArray)((function () {
-                  var $758 = Data_Profunctor.lcmap(Data_Profunctor.profunctorFn)(wrapFAS);
-                  var $759 = interpretInstruction(effectfulAudioInterpret);
-                  return function ($760) {
-                      return $758($759($760));
+                  var $760 = Data_Profunctor.lcmap(Data_Profunctor.profunctorFn)(wrapFAS);
+                  var $761 = interpretInstruction(effectfulAudioInterpret);
+                  return function ($762) {
+                      return $760($761($762));
                   };
               })())(Data_Array.fromFoldable(Data_Set.foldableSet)(a));
           };
           if (v instanceof Data_Maybe.Just) {
               return Data_Functor.map(Data_Functor.functorArray)((function () {
-                  var $761 = Data_Profunctor.lcmap(Data_Profunctor.profunctorFn)(wrapFAS);
-                  var $762 = interpretInstruction(effectfulAudioInterpret);
-                  return function ($763) {
-                      return $761($762($763));
+                  var $763 = Data_Profunctor.lcmap(Data_Profunctor.profunctorFn)(wrapFAS);
+                  var $764 = interpretInstruction(effectfulAudioInterpret);
+                  return function ($765) {
+                      return $763($764($765));
                   };
               })())(Data_Array.fromFoldable(Data_Set.foldableSet)(WAGS_Tumult_Reconciliation.reconcileTumult(a)(v.value0)));
           };
-          throw new Error("Failed pattern match at WAGS.Interpret (line 889, column 31 - line 891, column 100): " + [ v.constructor.name ]);
+          throw new Error("Failed pattern match at WAGS.Interpret (line 897, column 31 - line 899, column 100): " + [ v.constructor.name ]);
       };
   };
   var effectfulAudioInterpret = {
@@ -19326,6 +19333,7 @@ var PS = {};
   };
   exports["unAsSubGraph"] = unAsSubGraph;
   exports["connectXToY"] = connectXToY;
+  exports["decodeAudioDataFromUri"] = decodeAudioDataFromUri;
   exports["defaultFFIAudio"] = defaultFFIAudio;
   exports["makeGain"] = makeGain;
   exports["makeHighpass"] = makeHighpass;
@@ -19353,7 +19361,8 @@ var PS = {};
   exports["context"] = $foreign.context;
   exports["contextState"] = $foreign.contextState;
   exports["contextResume"] = $foreign.contextResume;
-  exports["decodeAudioDataFromUri"] = $foreign.decodeAudioDataFromUri;
+  exports["fetchArrayBuffer"] = $foreign.fetchArrayBuffer;
+  exports["decodeAudioDataFromArrayBuffer"] = $foreign.decodeAudioDataFromArrayBuffer;
   exports["getAudioClockTime"] = $foreign.getAudioClockTime;
   exports["makeUnitCache"] = $foreign.makeUnitCache;
   exports["renderAudio"] = $foreign.renderAudio;
@@ -21578,13 +21587,6 @@ var PS = {};
           };
       };
   };
-  var eqBufferUrl = {
-      eq: function (x) {
-          return function (y) {
-              return x === y;
-          };
-      }
-  };
   exports["h2v'"] = h2v$prime;
   exports["Globals"] = Globals;
   exports["Voice"] = Voice;
@@ -21597,7 +21599,6 @@ var PS = {};
   exports["ISingleNote"] = ISingleNote;
   exports["DroneNote"] = DroneNote;
   exports["Note"] = Note;
-  exports["eqBufferUrl"] = eqBufferUrl;
   exports["zipProps"] = zipProps;
   exports["h2vNil"] = h2vNil;
   exports["h2vCons"] = h2vCons;
@@ -25920,27 +25921,17 @@ var PS = {};
   var Control_Apply = $PS["Control.Apply"];
   var Control_Bind = $PS["Control.Bind"];
   var Control_Monad_Error_Class = $PS["Control.Monad.Error.Class"];
-  var Control_Parallel_Class = $PS["Control.Parallel.Class"];
-  var Control_Promise = $PS["Control.Promise"];
-  var Data_Array = $PS["Data.Array"];
   var Data_Boolean = $PS["Data.Boolean"];
   var Data_Either = $PS["Data.Either"];
-  var Data_Eq = $PS["Data.Eq"];
-  var Data_Foldable = $PS["Data.Foldable"];
   var Data_Function = $PS["Data.Function"];
   var Data_Functor = $PS["Data.Functor"];
   var Data_Int = $PS["Data.Int"];
   var Data_Map_Internal = $PS["Data.Map.Internal"];
-  var Data_Maybe = $PS["Data.Maybe"];
   var Data_Newtype = $PS["Data.Newtype"];
-  var Data_Semigroup = $PS["Data.Semigroup"];
   var Data_Show = $PS["Data.Show"];
   var Data_Symbol = $PS["Data.Symbol"];
-  var Data_Traversable = $PS["Data.Traversable"];
   var Data_Tuple = $PS["Data.Tuple"];
-  var Data_Unfoldable = $PS["Data.Unfoldable"];
   var Effect_Aff = $PS["Effect.Aff"];
-  var Effect_Class = $PS["Effect.Class"];
   var Effect_Class_Console = $PS["Effect.Class.Console"];
   var Effect_Exception = $PS["Effect.Exception"];
   var FRP_Behavior = $PS["FRP.Behavior"];
@@ -26000,14 +25991,6 @@ var PS = {};
           };
       };
   };
-  var chunks = function (v) {
-      return function (v1) {
-          if (v1.length === 0) {
-              return [  ];
-          };
-          return Data_Semigroup.append(Data_Semigroup.semigroupArray)(Control_Applicative.pure(Control_Applicative.applicativeArray)(Data_Array.take(v)(v1)))(chunks(v)(Data_Array.drop(v)(v1)));
-      };
-  };
   var backoff = function (aff) {
       var go = function (n) {
           if (n >= 3) {
@@ -26021,16 +26004,16 @@ var PS = {};
                   if (v instanceof Data_Either.Right) {
                       return Control_Applicative.pure(Effect_Aff.applicativeAff)(v.value0);
                   };
-                  throw new Error("Failed pattern match at WAGS.Lib.Tidal.Download (line 85, column 31 - line 87, column 30): " + [ v.constructor.name ]);
+                  throw new Error("Failed pattern match at WAGS.Lib.Tidal.Download (line 81, column 31 - line 83, column 30): " + [ v.constructor.name ]);
               });
           };
-          throw new Error("Failed pattern match at WAGS.Lib.Tidal.Download (line 83, column 3 - line 87, column 30): " + [ n.constructor.name ]);
+          throw new Error("Failed pattern match at WAGS.Lib.Tidal.Download (line 79, column 3 - line 83, column 30): " + [ n.constructor.name ]);
       };
       return go(0);
   };
   var downloadSilence = function (dictLacks) {
       return function (v) {
-          var b = backoff(Control_Promise.toAffE(WAGS_Interpret.decodeAudioDataFromUri(v.value0)("https://freesound.org/data/previews/459/459659_4766646-lq.mp3")));
+          var b = backoff(WAGS_Interpret.decodeAudioDataFromUri(v.value0)("https://freesound.org/data/previews/459/459659_4766646-lq.mp3"));
           return new Data_Tuple.Tuple(v.value0, Control_Bind.bind(Effect_Aff.bindAff)(v.value1)(function (v1) {
               return Control_Bind.bind(Effect_Aff.bindAff)(b)(function (b$prime) {
                   return Control_Applicative.pure(Effect_Aff.applicativeAff)(new Data_Tuple.Tuple(v1.value0, Data_Functor.map(FRP_Behavior.functorABehavior(FRP_Event.functorEvent))(Record.insert({
@@ -26042,68 +26025,12 @@ var PS = {};
           }));
       };
   };
-  var mapped = function (audioCtx) {
-      return function (v) {
-          return backoff(Control_Bind.bind(Effect_Aff.bindAff)(Control_Promise.toAffE(WAGS_Interpret.decodeAudioDataFromUri(audioCtx)(v)))(function (forward) {
-              return Control_Bind.bind(Effect_Aff.bindAff)(Effect_Class.liftEffect(Effect_Aff.monadEffectAff)($foreign.reverseAudioBuffer(audioCtx)(forward)))(function (backwards) {
-                  return Control_Applicative.pure(Effect_Aff.applicativeAff)({
-                      url: v,
-                      buffer: {
-                          forward: forward,
-                          backwards: backwards
-                      }
-                  });
-              });
-          }));
-      };
-  };
-  var getBuffersUsingCache = function (nameToUrl) {
-      return function (audioCtx) {
-          return function (alreadyDownloaded) {
-              var traversed = Data_Traversable.traverse(Data_Traversable.traversableArray)(Effect_Aff.applicativeParAff)(function (v) {
-                  return Control_Parallel_Class.parallel(Effect_Aff.parallelAff)(backoff(Data_Functor.map(Effect_Aff.functorAff)(Data_Tuple.Tuple.create(v.value0))(mapped(audioCtx)(v.value1))));
-              });
-              var toDownload = Data_Map_Internal.mapMaybeWithKey(WAGS_Lib_Tidal_Types.sampleOrd)(function (k) {
-                  return function (v) {
-                      var v1 = Data_Map_Internal.lookup(WAGS_Lib_Tidal_Types.sampleOrd)(k)(alreadyDownloaded);
-                      if (v1 instanceof Data_Maybe.Nothing) {
-                          return new Data_Maybe.Just(v);
-                      };
-                      if (v1 instanceof Data_Maybe.Just) {
-                          var $47 = Data_Eq.eq(WAGS_Lib_Tidal_Types.eqBufferUrl)(v1.value0.url)(v);
-                          if ($47) {
-                              return Data_Maybe.Nothing.value;
-                          };
-                          return new Data_Maybe.Just(v);
-                      };
-                      throw new Error("Failed pattern match at WAGS.Lib.Tidal.Download (line 69, column 56 - line 71, column 57): " + [ v1.constructor.name ]);
-                  };
-              })(nameToUrl);
-              var toDownloadArr = Data_Map_Internal.toUnfoldable(Data_Unfoldable.unfoldableArray)(toDownload);
-              var newBuffers = Data_Functor.map(Effect_Aff.functorAff)((function () {
-                  var $53 = Data_Map_Internal.fromFoldable(WAGS_Lib_Tidal_Types.sampleOrd)(Data_Foldable.foldableArray);
-                  var $54 = Control_Bind.join(Control_Bind.bindArray);
-                  return function ($55) {
-                      return $53($54($55));
-                  };
-              })())(Data_Traversable.traverse(Data_Traversable.traversableArray)(Effect_Aff.applicativeAff)((function () {
-                  var $56 = Control_Parallel_Class.sequential(Effect_Aff.parallelAff);
-                  return function ($57) {
-                      return $56(traversed($57));
-                  };
-              })())(chunks(100)(toDownloadArr)));
-              return Control_Bind.bind(Effect_Aff.bindAff)(Control_Apply.apply(Effect_Aff.applyAff)(Data_Functor.map(Effect_Aff.functorAff)(Data_Map_Internal.union(WAGS_Lib_Tidal_Types.sampleOrd))(newBuffers))(Control_Applicative.pure(Effect_Aff.applicativeAff)(alreadyDownloaded)))(function (res) {
-                  return Control_Applicative.pure(Effect_Aff.applicativeAff)(res);
-              });
-          };
-      };
-  };
   exports["sounds"] = sounds;
-  exports["getBuffersUsingCache"] = getBuffersUsingCache;
   exports["downloadSilence"] = downloadSilence;
   exports["initialBuffers"] = initialBuffers;
   exports["soundsNil"] = soundsNil;
   exports["soundsCons"] = soundsCons;
+  exports["reverseAudioBuffer"] = $foreign.reverseAudioBuffer;
 })(PS);
 (function($PS) {
   // Generated by purs version 0.14.4
@@ -28299,77 +28226,6 @@ var PS = {};
 (function($PS) {
   // Generated by purs version 0.14.4
   "use strict";
-  $PS["WAGS.Lib.Tidal.Util"] = $PS["WAGS.Lib.Tidal.Util"] || {};
-  var exports = $PS["WAGS.Lib.Tidal.Util"];
-  var Control_Alt = $PS["Control.Alt"];
-  var Control_Applicative = $PS["Control.Applicative"];
-  var Control_Bind = $PS["Control.Bind"];
-  var Data_Compactable = $PS["Data.Compactable"];
-  var Data_Foldable = $PS["Data.Foldable"];
-  var Data_Functor = $PS["Data.Functor"];
-  var Data_Map_Internal = $PS["Data.Map.Internal"];
-  var Data_Maybe = $PS["Data.Maybe"];
-  var Data_Semigroup = $PS["Data.Semigroup"];
-  var Data_Set = $PS["Data.Set"];
-  var Effect_Aff = $PS["Effect.Aff"];
-  var Effect_Class = $PS["Effect.Class"];
-  var Effect_Ref = $PS["Effect.Ref"];
-  var FRP_Behavior = $PS["FRP.Behavior"];
-  var FRP_Event = $PS["FRP.Event"];
-  var Foreign_Object = $PS["Foreign.Object"];
-  var WAGS_Lib_Tidal_Download = $PS["WAGS.Lib.Tidal.Download"];
-  var WAGS_Lib_Tidal_Samples = $PS["WAGS.Lib.Tidal.Samples"];
-  var WAGS_Lib_Tidal_Types = $PS["WAGS.Lib.Tidal.Types"];                
-  var v2s = function (v) {
-      return v.next.samples;
-  };
-  var r2b = function (r) {
-      return FRP_Behavior.behavior(function (e) {
-          return FRP_Event.makeEvent(function (f) {
-              return FRP_Event.subscribe(e)(function (v) {
-                  return function __do() {
-                      var $27 = Effect_Ref.read(r)();
-                      return f(v($27))();
-                  };
-              });
-          });
-      });
-  };   
-  var d2s = function (v) {
-      return v.sample;
-  };
-  var doDownloads = function (audioContext) {
-      return function (cacheRef) {
-          return function (push) {
-              return function (v) {
-                  return Control_Bind.bind(Effect_Aff.bindAff)(Effect_Class.liftEffect(Effect_Aff.monadEffectAff)(Effect_Ref.read(cacheRef)))(function (cache) {
-                      var sets = Data_Semigroup.append(Data_Set.semigroupSet(WAGS_Lib_Tidal_Types.sampleOrd))(Data_Set.fromFoldable(Data_Foldable.foldableArray)(WAGS_Lib_Tidal_Types.sampleOrd)(v.preload))(Data_Semigroup.append(Data_Set.semigroupSet(WAGS_Lib_Tidal_Types.sampleOrd))(Data_Foldable.fold(Data_Foldable.foldableArray)(Data_Set.monoidSet(WAGS_Lib_Tidal_Types.sampleOrd))(Data_Functor.map(Data_Functor.functorArray)(v2s)([ v.earth, v.wind, v.fire ])))(Data_Set.fromFoldable(Data_Foldable.foldableArray)(WAGS_Lib_Tidal_Types.sampleOrd)(Data_Compactable.compact(Data_Compactable.compactableArray)(Data_Functor.map(Data_Functor.functorArray)(Data_Functor.map(Data_Maybe.functorMaybe)(d2s))([ v.air, v.heart ])))));
-                      var samplesToUrl = Data_Map_Internal.mapMaybeWithKey(WAGS_Lib_Tidal_Types.sampleOrd)(function (v1) {
-                          return function (v2) {
-                              return Control_Alt.alt(Data_Maybe.altMaybe)(Data_Map_Internal.lookup(WAGS_Lib_Tidal_Types.sampleOrd)(v1)(v.sounds))(Control_Bind.bind(Data_Maybe.bindMaybe)(Foreign_Object.lookup(v1)(WAGS_Lib_Tidal_Samples.nameToSampleO))(function (nm) {
-                                  return Control_Bind.bind(Data_Maybe.bindMaybe)(Data_Map_Internal.lookup(WAGS_Lib_Tidal_Types.sampleOrd)(nm)(WAGS_Lib_Tidal_Samples.sampleToUrls))(function (url) {
-                                      return Control_Applicative.pure(Data_Maybe.applicativeMaybe)(url);
-                                  });
-                              }));
-                          };
-                      })(Data_Set.toMap(sets));
-                      return Control_Bind.bind(Effect_Aff.bindAff)(WAGS_Lib_Tidal_Download.getBuffersUsingCache(samplesToUrl)(audioContext)(cache))(function (newMap) {
-                          return Effect_Class.liftEffect(Effect_Aff.monadEffectAff)(function __do() {
-                              Effect_Ref.write(newMap)(cacheRef)();
-                              return push(v)();
-                          });
-                      });
-                  });
-              };
-          };
-      };
-  };
-  exports["r2b"] = r2b;
-  exports["doDownloads"] = doDownloads;
-})(PS);
-(function($PS) {
-  // Generated by purs version 0.14.4
-  "use strict";
   $PS["WAGS.Run"] = $PS["WAGS.Run"] || {};
   var exports = $PS["WAGS.Run"];
   var Control_Applicative = $PS["Control.Applicative"];
@@ -29278,6 +29134,7 @@ var PS = {};
   exports["addNewSounds"] = addNewSounds;
 })(PS);
 (function($PS) {
+  // Generated by purs version 0.14.4
   "use strict";
   $PS["Wavr.ChangeBeat"] = $PS["Wavr.ChangeBeat"] || {};
   var exports = $PS["Wavr.ChangeBeat"];
@@ -29455,6 +29312,7 @@ var PS = {};
   exports["pw'gis5"] = pw$primegis5;
 })(PS);
 (function($PS) {
+  // Generated by purs version 0.14.4
   "use strict";
   $PS["Wavr.Crackle"] = $PS["Wavr.Crackle"] || {};
   var exports = $PS["Wavr.Crackle"];
@@ -30186,6 +30044,345 @@ var PS = {};
   exports["monoidInteractivity"] = monoidInteractivity;
 })(PS);
 (function($PS) {
+  // Generated by purs version 0.14.4
+  "use strict";
+  $PS["Wavr.Util"] = $PS["Wavr.Util"] || {};
+  var exports = $PS["Wavr.Util"];
+  var Control_Comonad_Cofree = $PS["Control.Comonad.Cofree"];
+  var Control_Monad_Except = $PS["Control.Monad.Except"];
+  var Data_DateTime_Instant = $PS["Data.DateTime.Instant"];
+  var Data_Either = $PS["Data.Either"];
+  var Data_Foldable = $PS["Data.Foldable"];
+  var Data_Function = $PS["Data.Function"];
+  var Data_Functor = $PS["Data.Functor"];
+  var Data_Lens_Record = $PS["Data.Lens.Record"];
+  var Data_Lens_Setter = $PS["Data.Lens.Setter"];
+  var Data_List_NonEmpty = $PS["Data.List.NonEmpty"];
+  var Data_List_Types = $PS["Data.List.Types"];
+  var Data_Maybe = $PS["Data.Maybe"];
+  var Data_Monoid = $PS["Data.Monoid"];
+  var Data_Monoid_Additive = $PS["Data.Monoid.Additive"];
+  var Data_Monoid_Endo = $PS["Data.Monoid.Endo"];
+  var Data_Newtype = $PS["Data.Newtype"];
+  var Data_Ord = $PS["Data.Ord"];
+  var Data_Profunctor_Strong = $PS["Data.Profunctor.Strong"];
+  var Data_Semiring = $PS["Data.Semiring"];
+  var Data_Set = $PS["Data.Set"];
+  var Data_Show = $PS["Data.Show"];
+  var FRP_Event = $PS["FRP.Event"];
+  var FRP_Event_Class = $PS["FRP.Event.Class"];
+  var FRP_Event_Time = $PS["FRP.Event.Time"];
+  var Foreign = $PS["Foreign"];
+  var Simple_JSON = $PS["Simple.JSON"];
+  var Type_Proxy = $PS["Type.Proxy"];
+  var Wavr_DemoEvent = $PS["Wavr.DemoEvent"];                
+  var v2s = function (v) {
+      return v.next.samples;
+  };
+  var toHarm = (function () {
+      var go = function (v) {
+          if (v instanceof Data_List_Types.Cons && v.value0.value instanceof Wavr_DemoEvent["DE'The_possibility_to_harmonize"]) {
+              return new Data_List_Types.Cons(v.value0.value.value0, go(v.value1));
+          };
+          return Data_List_Types.Nil.value;
+      };
+      var $58 = Data_Set.fromFoldable(Data_List_Types.foldableList)(Wavr_DemoEvent.ordDEH);
+      return function ($59) {
+          return $58(go($59));
+      };
+  })();
+  var sst = function (ri) {
+      var rv = new Data_Maybe.Just(ri.time);
+      return function (v) {
+          if (v instanceof Data_List_Types.Nil) {
+              return rv;
+          };
+          if (v instanceof Data_List_Types.Cons) {
+              return Data_Monoid.guard(Data_Maybe.monoidMaybe(Data_Monoid_Additive.semigroupAdditive(Data_Semiring.semiringNumber)))(!Wavr_DemoEvent.ceq(ri.value)(v.value0.value))(rv);
+          };
+          throw new Error("Failed pattern match at Wavr.Util (line 84, column 5 - line 86, column 55): " + [ v.constructor.name ]);
+      };
+  };
+  var easingAlgorithm = (function () {
+      var fOf = function (initialTime) {
+          return Control_Comonad_Cofree.mkCofree(initialTime)(function (adj) {
+              return fOf(Data_Ord.max(Data_Ord.ordInt)(15)(initialTime - adj | 0));
+          });
+      };
+      return fOf(15);
+  })();
+  var d2s = function (v) {
+      return v.sample;
+  };
+  var consoleDemoEvent = function (loggr) {
+      return function (x) {
+          return FRP_Event.makeEvent(function (f) {
+              return FRP_Event.subscribe(x)(function (a) {
+                  var v = Control_Monad_Except.runExcept(Simple_JSON.readImpl(Wavr_DemoEvent.readJSONDE)(a));
+                  if (v instanceof Data_Either.Left) {
+                      return loggr("ERR: " + (Data_Show.show(Data_Show.showString)(Simple_JSON.writeJSON(Simple_JSON.writeForeignForeign)(a)) + (" " + Data_Show.show(Data_List_Types.showNonEmptyList(Foreign.showForeignError))(v.value0))));
+                  };
+                  if (v instanceof Data_Either.Right) {
+                      return f(v.value0);
+                  };
+                  throw new Error("Failed pattern match at Wavr.Util (line 129, column 3 - line 134, column 35): " + [ v.constructor.name ]);
+              });
+          });
+      };
+  };
+  var b01 = function (n) {
+      var $35 = n < 0.0;
+      if ($35) {
+          return 0.0;
+      };
+      var $36 = n > 1.0;
+      if ($36) {
+          return 1.0;
+      };
+      return n;
+  };
+  var toCrackle = function (fktr) {
+      return function (il) {
+          var val = function (v) {
+              return (Data_Foldable.foldl(Data_List_Types.foldableList)(function (v1) {
+                  return function (too) {
+                      return {
+                          v: too,
+                          acc: b01(v1.acc + (too.time - v1.v.time) * fktr * (function () {
+                              if (too.oo) {
+                                  return 1.0;
+                              };
+                              return 0.0;
+                          })())
+                      };
+                  };
+              })({
+                  v: v.value0,
+                  acc: 0.0
+              })(v.value1)).acc;
+          };
+          var sorted = Data_List_NonEmpty.sortBy(Data_Function.on(Data_Ord.compare(Data_Ord.ordNumber))(function (v) {
+              return v.time;
+          }));
+          var go = function (v) {
+              if (v instanceof Data_List_Types.Cons && v.value0.value instanceof Wavr_DemoEvent["DE'The_possibility_to_glitch_crackle_and_shimmer"]) {
+                  return new Data_List_Types.Cons({
+                      time: v.value0.time,
+                      oo: v.value0.value.value0
+                  }, go(v.value1));
+              };
+              return Data_List_Types.Nil.value;
+          };
+          return (function ($61) {
+              return (function (v) {
+                  if (v instanceof Data_Maybe.Nothing) {
+                      return Data_Monoid_Endo.Endo(function (v1) {
+                          return 0.0;
+                      });
+                  };
+                  if (v instanceof Data_Maybe.Just) {
+                      return Data_Monoid_Endo.Endo((function () {
+                          var vv = val(sorted(v.value0));
+                          return function (tm) {
+                              return b01(Data_Ord.max(Data_Ord.ordNumber)(0.0)(tm - v.value0.value0.time) * fktr * (function () {
+                                  if (v.value0.value0.oo) {
+                                      return 1.0;
+                                  };
+                                  return 0.0;
+                              })() + vv);
+                          };
+                      })());
+                  };
+                  throw new Error("Failed pattern match at Wavr.Util (line 56, column 50 - line 62, column 87): " + [ v.constructor.name ]);
+              })(Data_List_NonEmpty.fromList($61));
+          })(go(il));
+      };
+  };
+  var de2list = function (corrective) {
+      return function (i) {
+          var stamped = Data_Functor.map(FRP_Event.functorEvent)(Data_Lens_Setter.over(Data_Lens_Record.prop({
+              reflectSymbol: function () {
+                  return "time";
+              }
+          })()()(Type_Proxy["Proxy"].value)(Data_Profunctor_Strong.strongFn))((function () {
+              var $62 = Data_Newtype.unwrap();
+              return function ($63) {
+                  return (function (v) {
+                      return v - corrective;
+                  })((function (v) {
+                      return v / 1000.0;
+                  })($62(Data_DateTime_Instant.unInstant($63))));
+              };
+          })()))(FRP_Event_Time.withTime(i));
+          var folded = FRP_Event_Class.fold(FRP_Event.eventIsEvent)(function (a) {
+              return function (b) {
+                  return {
+                      sectionStartsAt: Data_Maybe.fromMaybe(b.sectionStartsAt)(sst(a)(b.raw)),
+                      raw: new Data_List_Types.Cons(a, b.raw)
+                  };
+              };
+          })(stamped)({
+              sectionStartsAt: 0.0,
+              raw: Data_List_Types.Nil.value
+          });
+          var mapped1 = Data_Functor.mapFlipped(FRP_Event.functorEvent)(folded)(function (v) {
+              return {
+                  raw: v.raw,
+                  harmony: toHarm(v.raw),
+                  crackle: toCrackle(0.1)(v.raw),
+                  sectionStartsAt: v.sectionStartsAt
+              };
+          });
+          return mapped1;
+      };
+  };
+  exports["de2list"] = de2list;
+  exports["easingAlgorithm"] = easingAlgorithm;
+  exports["v2s"] = v2s;
+  exports["d2s"] = d2s;
+  exports["consoleDemoEvent"] = consoleDemoEvent;
+})(PS);
+(function($PS) {
+  "use strict";
+  $PS["Wavr.Download"] = $PS["Wavr.Download"] || {};
+  var exports = $PS["Wavr.Download"];
+  var Control_Alt = $PS["Control.Alt"];
+  var Control_Applicative = $PS["Control.Applicative"];
+  var Control_Apply = $PS["Control.Apply"];
+  var Control_Bind = $PS["Control.Bind"];
+  var Control_Monad_Error_Class = $PS["Control.Monad.Error.Class"];
+  var Control_Parallel_Class = $PS["Control.Parallel.Class"];
+  var Control_Promise = $PS["Control.Promise"];
+  var Data_Array = $PS["Data.Array"];
+  var Data_Boolean = $PS["Data.Boolean"];
+  var Data_Compactable = $PS["Data.Compactable"];
+  var Data_Either = $PS["Data.Either"];
+  var Data_Foldable = $PS["Data.Foldable"];
+  var Data_Functor = $PS["Data.Functor"];
+  var Data_Int = $PS["Data.Int"];
+  var Data_Map_Internal = $PS["Data.Map.Internal"];
+  var Data_Maybe = $PS["Data.Maybe"];
+  var Data_Semigroup = $PS["Data.Semigroup"];
+  var Data_Set = $PS["Data.Set"];
+  var Data_Show = $PS["Data.Show"];
+  var Data_Traversable = $PS["Data.Traversable"];
+  var Data_Tuple = $PS["Data.Tuple"];
+  var Data_Unfoldable = $PS["Data.Unfoldable"];
+  var Effect_Aff = $PS["Effect.Aff"];
+  var Effect_Class = $PS["Effect.Class"];
+  var Effect_Class_Console = $PS["Effect.Class.Console"];
+  var Effect_Exception = $PS["Effect.Exception"];
+  var Foreign_Object = $PS["Foreign.Object"];
+  var WAGS_Interpret = $PS["WAGS.Interpret"];
+  var WAGS_Lib_Tidal_Download = $PS["WAGS.Lib.Tidal.Download"];
+  var WAGS_Lib_Tidal_Samples = $PS["WAGS.Lib.Tidal.Samples"];
+  var WAGS_Lib_Tidal_Types = $PS["WAGS.Lib.Tidal.Types"];
+  var Wavr_Util = $PS["Wavr.Util"];                
+  var prepAudio = function (ctx) {
+      return function (v) {
+          return Control_Bind.bind(Effect_Aff.bindAff)(Control_Promise.toAffE(WAGS_Interpret.decodeAudioDataFromArrayBuffer(ctx)(v.buffer)))(function (forward) {
+              return Control_Bind.bind(Effect_Aff.bindAff)(Effect_Class.liftEffect(Effect_Aff.monadEffectAff)(WAGS_Lib_Tidal_Download.reverseAudioBuffer(ctx)(forward)))(function (backwards) {
+                  return Control_Applicative.pure(Effect_Aff.applicativeAff)({
+                      url: v.url,
+                      buffer: {
+                          forward: forward,
+                          backwards: backwards
+                      }
+                  });
+              });
+          });
+      };
+  };
+  var prefetchStuff = function (v) {
+      var sets = Data_Semigroup.append(Data_Set.semigroupSet(WAGS_Lib_Tidal_Types.sampleOrd))(Data_Set.fromFoldable(Data_Foldable.foldableArray)(WAGS_Lib_Tidal_Types.sampleOrd)(v.preload))(Data_Semigroup.append(Data_Set.semigroupSet(WAGS_Lib_Tidal_Types.sampleOrd))(Data_Foldable.fold(Data_Foldable.foldableArray)(Data_Set.monoidSet(WAGS_Lib_Tidal_Types.sampleOrd))(Data_Functor.map(Data_Functor.functorArray)(Wavr_Util.v2s)([ v.earth, v.wind, v.fire ])))(Data_Set.fromFoldable(Data_Foldable.foldableArray)(WAGS_Lib_Tidal_Types.sampleOrd)(Data_Compactable.compact(Data_Compactable.compactableArray)(Data_Functor.map(Data_Functor.functorArray)(Data_Functor.map(Data_Maybe.functorMaybe)(Wavr_Util.d2s))([ v.air, v.heart ])))));
+      var samplesToUrl = Data_Map_Internal.mapMaybeWithKey(WAGS_Lib_Tidal_Types.sampleOrd)(function (v1) {
+          return function (v2) {
+              return Control_Alt.alt(Data_Maybe.altMaybe)(Data_Map_Internal.lookup(WAGS_Lib_Tidal_Types.sampleOrd)(v1)(v.sounds))(Control_Bind.bind(Data_Maybe.bindMaybe)(Foreign_Object.lookup(v1)(WAGS_Lib_Tidal_Samples.nameToSampleO))(function (nm) {
+                  return Control_Bind.bind(Data_Maybe.bindMaybe)(Data_Map_Internal.lookup(WAGS_Lib_Tidal_Types.sampleOrd)(nm)(WAGS_Lib_Tidal_Samples.sampleToUrls))(function (url) {
+                      return Control_Applicative.pure(Data_Maybe.applicativeMaybe)(url);
+                  });
+              }));
+          };
+      })(Data_Set.toMap(sets));
+      return samplesToUrl;
+  };
+  var getBuffersFromPrefetched = function (nameToArr) {
+      return function (audioCtx) {
+          var traversed = Data_Traversable.traverse(Data_Traversable.traversableArray)(Effect_Aff.applicativeAff)(function (v) {
+              return Data_Functor.map(Effect_Aff.functorAff)(Data_Tuple.Tuple.create(v.value0))(prepAudio(audioCtx)(v.value1));
+          });
+          var toMuxArr = Data_Map_Internal.toUnfoldable(Data_Unfoldable.unfoldableArray)(nameToArr);
+          return Data_Functor.map(Effect_Aff.functorAff)(Data_Map_Internal.fromFoldable(WAGS_Lib_Tidal_Types.sampleOrd)(Data_Foldable.foldableArray))(traversed(toMuxArr));
+      };
+  };
+  var chunks = function (v) {
+      return function (v1) {
+          if (v1.length === 0) {
+              return [  ];
+          };
+          return Data_Semigroup.append(Data_Semigroup.semigroupArray)(Control_Applicative.pure(Control_Applicative.applicativeArray)(Data_Array.take(v)(v1)))(chunks(v)(Data_Array.drop(v)(v1)));
+      };
+  };
+  var backoff = function (aff) {
+      var go = function (n) {
+          if (n >= 3) {
+              return Control_Monad_Error_Class.throwError(Effect_Aff.monadThrowAff)(Effect_Exception.error("Maximum download tries exceeded"));
+          };
+          if (Data_Boolean.otherwise) {
+              return Control_Bind.bind(Effect_Aff.bindAff)(Control_Monad_Error_Class["try"](Effect_Aff.monadErrorAff)(aff))(function (v) {
+                  if (v instanceof Data_Either.Left) {
+                      return Control_Apply.applySecond(Effect_Aff.applyAff)(Control_Apply.applySecond(Effect_Aff.applyAff)(Effect_Class_Console.error(Effect_Aff.monadEffectAff)(Data_Show.show(Effect_Exception.showError)(v.value0)))(Effect_Aff.delay(Data_Int.toNumber(n + 1 | 0) * 1000.0)))(go(n + 1 | 0));
+                  };
+                  if (v instanceof Data_Either.Right) {
+                      return Control_Applicative.pure(Effect_Aff.applicativeAff)(v.value0);
+                  };
+                  throw new Error("Failed pattern match at Wavr.Download (line 78, column 31 - line 80, column 30): " + [ v.constructor.name ]);
+              });
+          };
+          throw new Error("Failed pattern match at Wavr.Download (line 76, column 3 - line 80, column 30): " + [ n.constructor.name ]);
+      };
+      return go(0);
+  };
+  var fab = function (v) {
+      return backoff(Control_Promise.toAffE(WAGS_Interpret.fetchArrayBuffer(v)));
+  };
+  var getBuffers = function (nameToUrl) {
+      var traversed = Data_Traversable.traverse(Data_Traversable.traversableArray)(Effect_Aff.applicativeParAff)(function (v) {
+          return Control_Parallel_Class.parallel(Effect_Aff.parallelAff)(Data_Functor.map(Effect_Aff.functorAff)((function () {
+              var $37 = Data_Tuple.Tuple.create(v.value0);
+              return function ($38) {
+                  return $37((function (v2) {
+                      return {
+                          url: v.value1,
+                          buffer: v2
+                      };
+                  })($38));
+              };
+          })())(fab(v.value1)));
+      });
+      var toDownloadArr = Data_Map_Internal.toUnfoldable(Data_Unfoldable.unfoldableArray)(nameToUrl);
+      var newBuffers = Data_Functor.map(Effect_Aff.functorAff)((function () {
+          var $39 = Data_Map_Internal.fromFoldable(WAGS_Lib_Tidal_Types.sampleOrd)(Data_Foldable.foldableArray);
+          var $40 = Control_Bind.join(Control_Bind.bindArray);
+          return function ($41) {
+              return $39($40($41));
+          };
+      })())(Data_Traversable.traverse(Data_Traversable.traversableArray)(Effect_Aff.applicativeAff)((function () {
+          var $42 = Control_Parallel_Class.sequential(Effect_Aff.parallelAff);
+          return function ($43) {
+              return $42(traversed($43));
+          };
+      })())(chunks(100)(toDownloadArr)));
+      return Control_Bind.bind(Effect_Aff.bindAff)(newBuffers)(function (res) {
+          return Control_Applicative.pure(Effect_Aff.applicativeAff)(res);
+      });
+  };
+  exports["getBuffers"] = getBuffers;
+  exports["getBuffersFromPrefetched"] = getBuffersFromPrefetched;
+  exports["prefetchStuff"] = prefetchStuff;
+})(PS);
+(function($PS) {
+  // Generated by purs version 0.14.4
   "use strict";
   $PS["Wavr.EndBuild"] = $PS["Wavr.EndBuild"] || {};
   var exports = $PS["Wavr.EndBuild"];
@@ -30786,6 +30983,7 @@ var PS = {};
   exports["musicWasNeverMeantToBeStaticOrFixed"] = musicWasNeverMeantToBeStaticOrFixed;
 })(PS);
 (function($PS) {
+  // Generated by purs version 0.14.4
   "use strict";
   $PS["Wavr.NewDirection"] = $PS["Wavr.NewDirection"] || {};
   var exports = $PS["Wavr.NewDirection"];
@@ -31282,197 +31480,6 @@ var PS = {};
 })(PS);
 (function($PS) {
   "use strict";
-  $PS["Wavr.Util"] = $PS["Wavr.Util"] || {};
-  var exports = $PS["Wavr.Util"];
-  var Control_Comonad_Cofree = $PS["Control.Comonad.Cofree"];
-  var Control_Monad_Except = $PS["Control.Monad.Except"];
-  var Data_DateTime_Instant = $PS["Data.DateTime.Instant"];
-  var Data_Either = $PS["Data.Either"];
-  var Data_Foldable = $PS["Data.Foldable"];
-  var Data_Function = $PS["Data.Function"];
-  var Data_Functor = $PS["Data.Functor"];
-  var Data_Lens_Record = $PS["Data.Lens.Record"];
-  var Data_Lens_Setter = $PS["Data.Lens.Setter"];
-  var Data_List_NonEmpty = $PS["Data.List.NonEmpty"];
-  var Data_List_Types = $PS["Data.List.Types"];
-  var Data_Maybe = $PS["Data.Maybe"];
-  var Data_Monoid = $PS["Data.Monoid"];
-  var Data_Monoid_Additive = $PS["Data.Monoid.Additive"];
-  var Data_Monoid_Endo = $PS["Data.Monoid.Endo"];
-  var Data_Newtype = $PS["Data.Newtype"];
-  var Data_Ord = $PS["Data.Ord"];
-  var Data_Profunctor_Strong = $PS["Data.Profunctor.Strong"];
-  var Data_Semiring = $PS["Data.Semiring"];
-  var Data_Set = $PS["Data.Set"];
-  var Data_Show = $PS["Data.Show"];
-  var FRP_Event = $PS["FRP.Event"];
-  var FRP_Event_Class = $PS["FRP.Event.Class"];
-  var FRP_Event_Time = $PS["FRP.Event.Time"];
-  var Foreign = $PS["Foreign"];
-  var Simple_JSON = $PS["Simple.JSON"];
-  var Type_Proxy = $PS["Type.Proxy"];
-  var Wavr_DemoEvent = $PS["Wavr.DemoEvent"];
-  var toHarm = (function () {
-      var go = function (v) {
-          if (v instanceof Data_List_Types.Cons && v.value0.value instanceof Wavr_DemoEvent["DE'The_possibility_to_harmonize"]) {
-              return new Data_List_Types.Cons(v.value0.value.value0, go(v.value1));
-          };
-          return Data_List_Types.Nil.value;
-      };
-      var $58 = Data_Set.fromFoldable(Data_List_Types.foldableList)(Wavr_DemoEvent.ordDEH);
-      return function ($59) {
-          return $58(go($59));
-      };
-  })();
-  var sst = function (ri) {
-      var rv = new Data_Maybe.Just(ri.time);
-      return function (v) {
-          if (v instanceof Data_List_Types.Nil) {
-              return rv;
-          };
-          if (v instanceof Data_List_Types.Cons) {
-              return Data_Monoid.guard(Data_Maybe.monoidMaybe(Data_Monoid_Additive.semigroupAdditive(Data_Semiring.semiringNumber)))(!Wavr_DemoEvent.ceq(ri.value)(v.value0.value))(rv);
-          };
-          throw new Error("Failed pattern match at Wavr.Util (line 84, column 5 - line 86, column 55): " + [ v.constructor.name ]);
-      };
-  };
-  var easingAlgorithm = (function () {
-      var fOf = function (initialTime) {
-          return Control_Comonad_Cofree.mkCofree(initialTime)(function (adj) {
-              return fOf(Data_Ord.max(Data_Ord.ordInt)(15)(initialTime - adj | 0));
-          });
-      };
-      return fOf(15);
-  })();
-  var consoleDemoEvent = function (loggr) {
-      return function (x) {
-          return FRP_Event.makeEvent(function (f) {
-              return FRP_Event.subscribe(x)(function (a) {
-                  var v = Control_Monad_Except.runExcept(Simple_JSON.readImpl(Wavr_DemoEvent.readJSONDE)(a));
-                  if (v instanceof Data_Either.Left) {
-                      return loggr("ERR: " + (Data_Show.show(Data_Show.showString)(Simple_JSON.writeJSON(Simple_JSON.writeForeignForeign)(a)) + (" " + Data_Show.show(Data_List_Types.showNonEmptyList(Foreign.showForeignError))(v.value0))));
-                  };
-                  if (v instanceof Data_Either.Right) {
-                      return f(v.value0);
-                  };
-                  throw new Error("Failed pattern match at Wavr.Util (line 129, column 3 - line 134, column 35): " + [ v.constructor.name ]);
-              });
-          });
-      };
-  };
-  var b01 = function (n) {
-      var $35 = n < 0.0;
-      if ($35) {
-          return 0.0;
-      };
-      var $36 = n > 1.0;
-      if ($36) {
-          return 1.0;
-      };
-      return n;
-  };
-  var toCrackle = function (fktr) {
-      return function (il) {
-          var val = function (v) {
-              return (Data_Foldable.foldl(Data_List_Types.foldableList)(function (v1) {
-                  return function (too) {
-                      return {
-                          v: too,
-                          acc: b01(v1.acc + (too.time - v1.v.time) * fktr * (function () {
-                              if (too.oo) {
-                                  return 1.0;
-                              };
-                              return 0.0;
-                          })())
-                      };
-                  };
-              })({
-                  v: v.value0,
-                  acc: 0.0
-              })(v.value1)).acc;
-          };
-          var sorted = Data_List_NonEmpty.sortBy(Data_Function.on(Data_Ord.compare(Data_Ord.ordNumber))(function (v) {
-              return v.time;
-          }));
-          var go = function (v) {
-              if (v instanceof Data_List_Types.Cons && v.value0.value instanceof Wavr_DemoEvent["DE'The_possibility_to_glitch_crackle_and_shimmer"]) {
-                  return new Data_List_Types.Cons({
-                      time: v.value0.time,
-                      oo: v.value0.value.value0
-                  }, go(v.value1));
-              };
-              return Data_List_Types.Nil.value;
-          };
-          return (function ($61) {
-              return (function (v) {
-                  if (v instanceof Data_Maybe.Nothing) {
-                      return Data_Monoid_Endo.Endo(function (v1) {
-                          return 0.0;
-                      });
-                  };
-                  if (v instanceof Data_Maybe.Just) {
-                      return Data_Monoid_Endo.Endo((function () {
-                          var vv = val(sorted(v.value0));
-                          return function (tm) {
-                              return b01(Data_Ord.max(Data_Ord.ordNumber)(0.0)(tm - v.value0.value0.time) * fktr * (function () {
-                                  if (v.value0.value0.oo) {
-                                      return 1.0;
-                                  };
-                                  return 0.0;
-                              })() + vv);
-                          };
-                      })());
-                  };
-                  throw new Error("Failed pattern match at Wavr.Util (line 56, column 50 - line 62, column 87): " + [ v.constructor.name ]);
-              })(Data_List_NonEmpty.fromList($61));
-          })(go(il));
-      };
-  };
-  var de2list = function (corrective) {
-      return function (i) {
-          var stamped = Data_Functor.map(FRP_Event.functorEvent)(Data_Lens_Setter.over(Data_Lens_Record.prop({
-              reflectSymbol: function () {
-                  return "time";
-              }
-          })()()(Type_Proxy["Proxy"].value)(Data_Profunctor_Strong.strongFn))((function () {
-              var $62 = Data_Newtype.unwrap();
-              return function ($63) {
-                  return (function (v) {
-                      return v - corrective;
-                  })((function (v) {
-                      return v / 1000.0;
-                  })($62(Data_DateTime_Instant.unInstant($63))));
-              };
-          })()))(FRP_Event_Time.withTime(i));
-          var folded = FRP_Event_Class.fold(FRP_Event.eventIsEvent)(function (a) {
-              return function (b) {
-                  return {
-                      sectionStartsAt: Data_Maybe.fromMaybe(b.sectionStartsAt)(sst(a)(b.raw)),
-                      raw: new Data_List_Types.Cons(a, b.raw)
-                  };
-              };
-          })(stamped)({
-              sectionStartsAt: 0.0,
-              raw: Data_List_Types.Nil.value
-          });
-          var mapped1 = Data_Functor.mapFlipped(FRP_Event.functorEvent)(folded)(function (v) {
-              return {
-                  raw: v.raw,
-                  harmony: toHarm(v.raw),
-                  crackle: toCrackle(0.1)(v.raw),
-                  sectionStartsAt: v.sectionStartsAt
-              };
-          });
-          return mapped1;
-      };
-  };
-  exports["de2list"] = de2list;
-  exports["easingAlgorithm"] = easingAlgorithm;
-  exports["consoleDemoEvent"] = consoleDemoEvent;
-})(PS);
-(function($PS) {
-  // Generated by purs version 0.14.4
-  "use strict";
   $PS["Wavr.Handoff"] = $PS["Wavr.Handoff"] || {};
   var exports = $PS["Wavr.Handoff"];
   var Control_Applicative = $PS["Control.Applicative"];
@@ -31481,28 +31488,25 @@ var PS = {};
   var Control_Promise = $PS["Control.Promise"];
   var Data_Either = $PS["Data.Either"];
   var Data_Foldable = $PS["Data.Foldable"];
-  var Data_Function = $PS["Data.Function"];
   var Data_Functor = $PS["Data.Functor"];
   var Data_JSDate = $PS["Data.JSDate"];
   var Data_Map_Internal = $PS["Data.Map.Internal"];
   var Data_Monoid = $PS["Data.Monoid"];
-  var Data_Traversable = $PS["Data.Traversable"];
   var Data_Tuple = $PS["Data.Tuple"];
   var Data_Unit = $PS["Data.Unit"];
   var Effect = $PS["Effect"];
   var Effect_Aff = $PS["Effect.Aff"];
   var Effect_Class = $PS["Effect.Class"];
-  var Effect_Ref = $PS["Effect.Ref"];
   var FRP_Behavior = $PS["FRP.Behavior"];
   var FRP_Event = $PS["FRP.Event"];
   var WAGS_Interpret = $PS["WAGS.Interpret"];
   var WAGS_Lib_Tidal_Engine = $PS["WAGS.Lib.Tidal.Engine"];
-  var WAGS_Lib_Tidal_Tidal = $PS["WAGS.Lib.Tidal.Tidal"];
-  var WAGS_Lib_Tidal_Util = $PS["WAGS.Lib.Tidal.Util"];
+  var WAGS_Lib_Tidal_Types = $PS["WAGS.Lib.Tidal.Types"];
   var WAGS_Run = $PS["WAGS.Run"];
   var Wavr_ChangeBeat = $PS["Wavr.ChangeBeat"];
   var Wavr_DemoEvent = $PS["Wavr.DemoEvent"];
   var Wavr_DemoTypes = $PS["Wavr.DemoTypes"];
+  var Wavr_Download = $PS["Wavr.Download"];
   var Wavr_EndBuild = $PS["Wavr.EndBuild"];
   var Wavr_Example = $PS["Wavr.Example"];
   var Wavr_Harmonize = $PS["Wavr.Harmonize"];
@@ -31516,25 +31520,25 @@ var PS = {};
   };
   var start_ = function (audioCtx) {
       return function (logger) {
-          return function (v) {
-              var ohBehave = WAGS_Lib_Tidal_Util.r2b(v.bufCache);
-              return Control_Bind.bind(Effect_Aff.bindAff)(Effect_Class.liftEffect(Effect_Aff.monadEffectAff)(WAGS_Interpret.contextState(audioCtx)))(function (cstate) {
-                  return Control_Bind.discard(Control_Bind.discardUnit)(Effect_Aff.bindAff)(Control_Applicative.when(Effect_Aff.applicativeAff)(cstate !== "running")(Control_Promise.toAffE(WAGS_Interpret.contextResume(audioCtx))))(function () {
-                      return Control_Bind.bind(Effect_Aff.bindAff)(Effect_Class.liftEffect(Effect_Aff.monadEffectAff)(WAGS_Interpret.makeUnitCache))(function (unitCache) {
-                          return Control_Bind.bind(Effect_Aff.bindAff)(Effect_Class.liftEffect(Effect_Aff.monadEffectAff)(WAGS_Interpret.getAudioClockTime(audioCtx)))(function (ct) {
-                              return Control_Bind.bind(Effect_Aff.bindAff)(Data_Functor.map(Effect_Aff.functorAff)(function ($21) {
-                                  return (function (v1) {
-                                      return v1 / 1000.0;
-                                  })(Data_JSDate.getTime($21));
-                              })(Effect_Class.liftEffect(Effect_Aff.monadEffectAff)(Data_JSDate.now)))(function (tn) {
-                                  var corrective = tn - ct;
-                                  var ffiAudio = WAGS_Interpret.defaultFFIAudio(audioCtx)(unitCache);
-                                  var v1 = WAGS_Lib_Tidal_Engine.engine(Wavr_DemoTypes.monoidInteractivity)(Wavr_Util.de2list(corrective)(Wavr_Util.consoleDemoEvent(logger)(v.interactivity.event)))(Control_Applicative.pure(FRP_Event.applicativeEvent)(Wavr_Example.wag))(new Data_Either.Left(ohBehave));
-                                  return Control_Bind.bind(Effect_Aff.bindAff)(Data_Tuple.snd(v1.triggerWorld(new Data_Tuple.Tuple(audioCtx, Control_Applicative.pure(Effect_Aff.applicativeAff)(new Data_Tuple.Tuple(Control_Applicative.pure(FRP_Event.applicativeEvent)({}), Control_Applicative.pure(FRP_Behavior.applicativeABehavior(FRP_Event.functorEvent))({})))))))(function (v2) {
-                                      return Control_Bind.discard(Control_Bind.discardUnit)(Effect_Aff.bindAff)(WAGS_Lib_Tidal_Util.doDownloads(audioCtx)(v.bufCache)(Data_Function["const"](Control_Applicative.pure(Effect.applicativeEffect)(Data_Unit.unit)))(WAGS_Lib_Tidal_Tidal.openFuture))(function () {
-                                          return Control_Bind.bind(Effect_Aff.bindAff)(Effect_Class.liftEffect(Effect_Aff.monadEffectAff)(FRP_Event.subscribe(WAGS_Run.run()(WAGS_Run.analyserRefsNil)(WAGS_Run.workWithAnalysersNil)(WAGS_Run.getAnalysersNil)(Data_Monoid.monoidUnit)(v2.value0)(v2.value1)({
+          return function (bufCache) {
+              return function (interactivity) {
+                  var ohBehave = Control_Applicative.pure(FRP_Behavior.applicativeABehavior(FRP_Event.functorEvent))(bufCache);
+                  return Control_Bind.bind(Effect_Aff.bindAff)(Effect_Class.liftEffect(Effect_Aff.monadEffectAff)(WAGS_Interpret.contextState(audioCtx)))(function (cstate) {
+                      return Control_Bind.discard(Control_Bind.discardUnit)(Effect_Aff.bindAff)(Control_Applicative.when(Effect_Aff.applicativeAff)(cstate !== "running")(Control_Promise.toAffE(WAGS_Interpret.contextResume(audioCtx))))(function () {
+                          return Control_Bind.bind(Effect_Aff.bindAff)(Effect_Class.liftEffect(Effect_Aff.monadEffectAff)(WAGS_Interpret.makeUnitCache))(function (unitCache) {
+                              return Control_Bind.bind(Effect_Aff.bindAff)(Effect_Class.liftEffect(Effect_Aff.monadEffectAff)(WAGS_Interpret.getAudioClockTime(audioCtx)))(function (ct) {
+                                  return Control_Bind.bind(Effect_Aff.bindAff)(Data_Functor.map(Effect_Aff.functorAff)(function ($15) {
+                                      return (function (v) {
+                                          return v / 1000.0;
+                                      })(Data_JSDate.getTime($15));
+                                  })(Effect_Class.liftEffect(Effect_Aff.monadEffectAff)(Data_JSDate.now)))(function (tn) {
+                                      var corrective = tn - ct;
+                                      var ffiAudio = WAGS_Interpret.defaultFFIAudio(audioCtx)(unitCache);
+                                      var v = WAGS_Lib_Tidal_Engine.engine(Wavr_DemoTypes.monoidInteractivity)(Wavr_Util.de2list(corrective)(Wavr_Util.consoleDemoEvent(logger)(interactivity.event)))(Control_Applicative.pure(FRP_Event.applicativeEvent)(Wavr_Example.wag))(new Data_Either.Left(ohBehave));
+                                      return Control_Bind.bind(Effect_Aff.bindAff)(Data_Tuple.snd(v.triggerWorld(new Data_Tuple.Tuple(audioCtx, Control_Applicative.pure(Effect_Aff.applicativeAff)(new Data_Tuple.Tuple(Control_Applicative.pure(FRP_Event.applicativeEvent)({}), Control_Applicative.pure(FRP_Behavior.applicativeABehavior(FRP_Event.functorEvent))({})))))))(function (v1) {
+                                          return Control_Bind.bind(Effect_Aff.bindAff)(Effect_Class.liftEffect(Effect_Aff.monadEffectAff)(FRP_Event.subscribe(WAGS_Run.run()(WAGS_Run.analyserRefsNil)(WAGS_Run.workWithAnalysersNil)(WAGS_Run.getAnalysersNil)(Data_Monoid.monoidUnit)(v1.value0)(v1.value1)({
                                               easingAlgorithm: Wavr_Util.easingAlgorithm
-                                          })(ffiAudio)(v1.piece))(function (v3) {
+                                          })(ffiAudio)(v.piece))(function (v2) {
                                               return Control_Applicative.pure(Effect.applicativeEffect)(Data_Unit.unit);
                                           })))(function (unsubscribe) {
                                               return Control_Applicative.pure(Effect_Aff.applicativeAff)({
@@ -31548,68 +31552,90 @@ var PS = {};
                           });
                       });
                   });
-              });
+              };
           };
       };
   };
-  var start = function (logger) {
-      return function (di) {
-          return Control_Promise.fromAff(Control_Bind.bind(Effect_Aff.bindAff)(Effect_Class.liftEffect(Effect_Aff.monadEffectAff)(WAGS_Interpret.context))(function (audioCtx) {
-              return start_(audioCtx)(logger)(di);
-          }));
+  var startUsingPrefetch = function (logger) {
+      return function (bpf$prime) {
+          return function __do() {
+              var ctx = Effect_Class.liftEffect(Effect_Class.monadEffectEffect)(WAGS_Interpret.context)();
+              Effect_Class.liftEffect(Effect_Class.monadEffectEffect)(WAGS_Interpret.constant0Hack(ctx))();
+              return Control_Promise.fromAff(Control_Bind.bind(Effect_Aff.bindAff)(Effect_Class.liftEffect(Effect_Aff.monadEffectAff)(WAGS_Interpret.contextState(ctx)))(function (cstate) {
+                  return Control_Bind.discard(Control_Bind.discardUnit)(Effect_Aff.bindAff)(Control_Applicative.when(Effect_Aff.applicativeAff)(cstate !== "running")(Control_Promise.toAffE(WAGS_Interpret.contextResume(ctx))))(function () {
+                      return Control_Bind.bind(Effect_Aff.bindAff)(Effect_Aff.joinFiber(bpf$prime))(function (bpf) {
+                          return Control_Bind.bind(Effect_Aff.bindAff)(Wavr_Download.getBuffersFromPrefetched(bpf)(ctx))(function (bufz) {
+                              return Control_Bind.bind(Effect_Aff.bindAff)(Effect_Class.liftEffect(Effect_Aff.monadEffectAff)(FRP_Event.create))(function (interactivity) {
+                                  return Control_Bind.bind(Effect_Aff.bindAff)(start_(ctx)(logger)(bufz)(interactivity))(function (demoStarted) {
+                                      return Control_Applicative.pure(Effect_Aff.applicativeAff)({
+                                          demoInitialized: {
+                                              interactivity: interactivity
+                                          },
+                                          demoStarted: demoStarted
+                                      });
+                                  });
+                              });
+                          });
+                      });
+                  });
+              }))();
+          };
       };
   };
   var send = function (v) {
       return v.interactivity.push;
   };
-  var initialize_ = function (ctx) {
-      return Control_Bind.bind(Effect_Aff.bindAff)(Effect_Class.liftEffect(Effect_Aff.monadEffectAff)(Effect_Ref["new"](Data_Map_Internal.empty)))(function (bufCache) {
-          return Control_Bind.bind(Effect_Aff.bindAff)(Effect_Class.liftEffect(Effect_Aff.monadEffectAff)(FRP_Event.create))(function (interactivity) {
-              return Control_Bind.discard(Control_Bind.discardUnit)(Effect_Aff.bindAff)(Data_Functor.map(Effect_Aff.functorAff)(Data_Foldable.fold(Data_Foldable.foldableArray)(Data_Monoid.monoidUnit))(Data_Traversable.traverse(Data_Traversable.traversableArray)(Effect_Aff.applicativeAff)(WAGS_Lib_Tidal_Util.doDownloads(ctx)(bufCache)(Data_Function["const"](Control_Applicative.pure(Effect.applicativeEffect)(Data_Unit.unit))))([ Wavr_LoFi.loFi({
-                  isFresh: true,
-                  value: Data_Monoid.mempty(Wavr_DemoTypes.monoidInteractivity)
-              }), Wavr_MusicWasNeverMeantToBeStaticOrFixed.musicWasNeverMeantToBeStaticOrFixed({
-                  isFresh: true,
-                  value: Data_Monoid.mempty(Wavr_DemoTypes.monoidInteractivity)
-              }), Wavr_ChangeBeat.changeBeat(Wavr_DemoEvent["BC'C1"].value), Wavr_ChangeBeat.changeBeat(Wavr_DemoEvent["BC'C2"].value), Wavr_ChangeBeat.changeBeat(Wavr_DemoEvent["BC'C3"].value), Wavr_ChangeBeat.changeBeat(Wavr_DemoEvent["BC'C4"].value), Wavr_ChangeBeat.changeBeat(Wavr_DemoEvent["BC'C5"].value), Wavr_NewDirection.newDirection, Wavr_Harmonize.harmonize, Wavr_InfiniteGest.infiniteGest, Wavr_EndBuild.endBuild ])))(function () {
-                  return Control_Applicative.pure(Effect_Aff.applicativeAff)({
-                      bufCache: bufCache,
-                      interactivity: interactivity
-                  });
-              });
-          });
-      });
-  };
-  var initializeAndStart = function (logger) {
-      return function __do() {
-          var ctx = Effect_Class.liftEffect(Effect_Class.monadEffectEffect)(WAGS_Interpret.context)();
-          Effect_Class.liftEffect(Effect_Class.monadEffectEffect)(WAGS_Interpret.constant0Hack(ctx))();
-          return Control_Promise.fromAff(Control_Bind.bind(Effect_Aff.bindAff)(Effect_Class.liftEffect(Effect_Aff.monadEffectAff)(WAGS_Interpret.contextState(ctx)))(function (cstate) {
-              return Control_Bind.discard(Control_Bind.discardUnit)(Effect_Aff.bindAff)(Control_Applicative.when(Effect_Aff.applicativeAff)(cstate !== "running")(Control_Promise.toAffE(WAGS_Interpret.contextResume(ctx))))(function () {
-                  return Control_Bind.bind(Effect_Aff.bindAff)(initialize_(ctx))(function (demoInitialized) {
-                      return Control_Bind.bind(Effect_Aff.bindAff)(start_(ctx)(logger)(demoInitialized))(function (demoStarted) {
-                          return Control_Applicative.pure(Effect_Aff.applicativeAff)({
-                              demoInitialized: demoInitialized,
-                              demoStarted: demoStarted
-                          });
-                      });
-                  });
-              });
-          }))();
-      };
-  };
-  var initialize = Control_Promise.fromAff(Effect_Aff.bracket(Effect_Class.liftEffect(Effect_Aff.monadEffectAff)(WAGS_Interpret.context))((function () {
-      var $22 = Effect_Class.liftEffect(Effect_Aff.monadEffectAff);
-      return function ($23) {
-          return $22(WAGS_Interpret.close($23));
-      };
-  })())(initialize_));
-  exports["initializeAndStart"] = initializeAndStart;
-  exports["initialize_"] = initialize_;
-  exports["initialize"] = initialize;
-  exports["start"] = start;
-  exports["start_"] = start_;
+
+  //------------------------------
+  //------------------------------
+  //------------------------------
+  //------------------------------
+  //------------------------------
+  //------------------------------
+  //------------------------------
+  //------------------------------
+  //------------------------------
+  //------------------------------
+  //------------------------------
+  //------------------------------
+  //------------------------------
+  //------------------------------
+  //------------------------------
+  //------------------------------
+  //------------------------------
+  //------------------------------
+  //------------------------------
+  //------------------------------
+  //------------------------------
+  //------------------------------
+  //------------------------------
+  //------------------------------
+  //------------------------------
+  //------------------------------
+  //------------------------------
+  //------------------------------
+  //------------------------------
+  //------------------------------
+  //------------------------------
+  //------------------------------
+  //------------------------------
+  //------------------------------
+  //------------------------------
+  //------------------------------
+  //------------------------------
+  var futures = [ Wavr_LoFi.loFi({
+      isFresh: true,
+      value: Data_Monoid.mempty(Wavr_DemoTypes.monoidInteractivity)
+  }), Wavr_MusicWasNeverMeantToBeStaticOrFixed.musicWasNeverMeantToBeStaticOrFixed({
+      isFresh: true,
+      value: Data_Monoid.mempty(Wavr_DemoTypes.monoidInteractivity)
+  }), Wavr_ChangeBeat.changeBeat(Wavr_DemoEvent["BC'C1"].value), Wavr_ChangeBeat.changeBeat(Wavr_DemoEvent["BC'C2"].value), Wavr_ChangeBeat.changeBeat(Wavr_DemoEvent["BC'C3"].value), Wavr_ChangeBeat.changeBeat(Wavr_DemoEvent["BC'C4"].value), Wavr_ChangeBeat.changeBeat(Wavr_DemoEvent["BC'C5"].value), Wavr_NewDirection.newDirection, Wavr_Harmonize.harmonize, Wavr_InfiniteGest.infiniteGest, Wavr_EndBuild.endBuild ];
+  var prefetch = Effect_Aff.launchAff(Wavr_Download.getBuffers(Data_Foldable.foldl(Data_Foldable.foldableArray)(Data_Map_Internal.union(WAGS_Lib_Tidal_Types.sampleOrd))(Data_Map_Internal.empty)(Data_Functor.map(Data_Functor.functorArray)(Wavr_Download.prefetchStuff)(futures))));
+  exports["prefetch"] = prefetch;
+  exports["startUsingPrefetch"] = startUsingPrefetch;
   exports["send"] = send;
   exports["stop"] = stop;
+  exports["futures"] = futures;
+  exports["start_"] = start_;
 })(PS);
 module.exports = PS["Wavr.Handoff"];

@@ -1,8 +1,7 @@
 import React, { ReactNode, MouseEventHandler, useState } from 'react';
 import { Card, Grid } from '@components/index';
 import { Beat1, Beat2, Beat3, Beat4, Beat5, Beat6 } from '@components/icons';
-// @ts-expect-error TODO fix types
-import { send } from '../../utils/wags/handoff';
+import { send, DemoInitialized } from '../../utils/wags/handoff';
 
 const Drum = ({
 	children,

@@ -11,8 +11,14 @@ import {
 	Step6,
 	Step7,
 } from '@components/demo';
-// @ts-expect-error TODO: fix types
-import { initializeAndStart, send } from '../utils/wags/handoff';
+import {
+	startUsingPrefetch,
+	send,
+	prefetch,
+	BuffersPrefetched,
+	DemoInitialized,
+	DemoStarted,
+} from '../utils/wags/handoff';
 import { Button, Dialog, DialogContent, Text } from '@components/index';
 
 const Container = styled('div', {
@@ -27,6 +33,11 @@ const Container = styled('div', {
 type DIDS = { demoStarted: DemoStarted; demoInitialized: DemoInitialized };
 
 const Demo = () => {
+	const [buffersPrefetched, setBuffersPrefetched] =
+		useState<BuffersPrefetched | null>(null);
+	useEffect(() => {
+		setBuffersPrefetched(prefetch());
+	}, [null]);
 	const router = useRouter();
 	const [demoInitialized, setDemoInitialized] =
 		useState<DemoInitialized | void>();
@@ -44,6 +55,9 @@ const Demo = () => {
 			: undefined;
 	const [step, setStep] = useState<number>(stepQueryParams || 0);
 	const [dialogOpen, setDialogOpen] = useState(step !== 0 && !dialogSeen);
+	useEffect(() => {
+		prefetch();
+	}, [null]);
 	useEffect(() => {
 		setStep(stepQueryParams || 0);
 	}, [stepNumber, stepQueryParams]);
@@ -119,16 +133,17 @@ const Demo = () => {
 							<Button
 								size="2"
 								onClick={() => {
-									initializeAndStart(
-										(s: string) => () => console.error(s)
-									)().then(
-										({ demoStarted, demoInitialized }: DIDS) => {
-											setDemoInitialized(demoInitialized);
-											setDemoStarted(demoStarted);
-											stepToSend(demoInitialized)(step);
-										},
-										(err: Error) => console.error(err)
-									);
+									buffersPrefetched &&
+										startUsingPrefetch((s: string) => () => console.error(s))(
+											buffersPrefetched
+										)().then(
+											({ demoStarted, demoInitialized }: DIDS) => {
+												setDemoInitialized(demoInitialized);
+												setDemoStarted(demoStarted);
+												stepToSend(demoInitialized)(step);
+											},
+											(err: Error) => console.error(err)
+										);
 									setDialogSeen(true);
 									setDialogOpen(false);
 								}}
@@ -144,8 +159,9 @@ const Demo = () => {
 						<AnimatedHeading text="Peek into what's possible" />
 						<Step0
 							onClick={() =>
-								initializeAndStart(
-									(s: string) => () => console.error(s)
+								buffersPrefetched &&
+								startUsingPrefetch((s: string) => () => console.error(s))(
+									buffersPrefetched
 								)().then(
 									({ demoStarted, demoInitialized }: DIDS) => {
 										setDemoInitialized(demoInitialized);
@@ -236,7 +252,9 @@ const Demo = () => {
 					<Button
 						size={2}
 						onClick={() => {
-							step > 0 && demoInitialized && stepToSend(demoInitialized)(step + 1);
+							step > 0 &&
+								demoInitialized &&
+								stepToSend(demoInitialized)(step + 1);
 							router.push(`/demo?stepNumber=${step + 1}`);
 						}}
 					>
